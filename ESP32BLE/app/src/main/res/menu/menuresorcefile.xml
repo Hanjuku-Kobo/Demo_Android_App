@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/home_menu"
+          android:title="ホーム" />
+
+    <item android:id="@+id/ble_game_menu"
+          android:title="Bluetoothゲーム"/>
+
+    <item android:id="@+id/pose_det_menu"
+          android:title="カメラ" />
+
+    <item android:id="@+id/file_service_menu"
+          android:title="ファイル" />
+
+    <item android:id="@+id/ble_test_menu"
+          android:title="Bluetoothテスト" />
+
+</menu>

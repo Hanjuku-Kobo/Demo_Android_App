@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/subTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_name"
+        android:textColor="#000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/edit_file_name"
+            android:layout_width="427dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:inputType="none|textNoSuggestions" />
+
+        <TextView
+            android:id="@+id/target_landmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="landmark name"
+            android:textAlignment="viewStart"
+            android:textSize="28dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/object_detect_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text=".csv"
+            android:textAlignment="center"
+            android:textSize="28sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/dialog_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:text="@string/button_submit" />
+
+</LinearLayout>

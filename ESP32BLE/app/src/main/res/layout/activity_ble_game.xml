@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FDFDFD">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/ble_game_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#CFCFCF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="scene_menu"
+            android:onClick="showPopup"
+            android:src="@drawable/ic_baseline_list_24" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Bluetoothゲーム"
+            android:textColor="#000000"
+            android:textSize="42dp"
+            tools:layout_editor_absoluteX="80dp"
+            tools:layout_editor_absoluteY="4dp" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <TextView
+        android:id="@+id/connect_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="デバイスに接続されていません"
+        app:layout_constraintBottom_toBottomOf="@+id/reconnect_button"
+        app:layout_constraintStart_toEndOf="@+id/reconnect_button"
+        app:layout_constraintTop_toTopOf="@+id/reconnect_button" />
+
+    <LinearLayout
+        android:id="@+id/ble_game_container1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ble_game_toolbar">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ble_game_container2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ble_game_container1"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/reconnect_button"
+        android:layout_width="76dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="接続"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/game_battery_level"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:text="--.-%"
+        android:textAlignment="textEnd"
+        app:layout_constraintBottom_toBottomOf="@+id/connect_state"
+        app:layout_constraintEnd_toEndOf="@+id/ble_game_container2"
+        app:layout_constraintTop_toTopOf="@+id/connect_state" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

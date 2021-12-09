@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/file_service_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#CFCFCF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="scene_menu"
+            android:onClick="showPopup"
+            android:src="@drawable/ic_baseline_list_24" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ファイル取り扱い"
+            android:textColor="#000000"
+            android:textSize="42dp"
+            tools:layout_editor_absoluteX="80dp"
+            tools:layout_editor_absoluteY="4dp" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <ListView
+        android:id="@+id/file_list_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="72dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/file_sort_button"
+        app:layout_constraintTop_toBottomOf="@+id/file_sort_button" />
+
+    <Button
+        android:id="@+id/file_sort_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="16dp"
+        android:text="並び替え"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/file_service_toolbar" />
+
+    <Button
+        android:id="@+id/file_delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="削除選択"
+        app:layout_constraintBottom_toBottomOf="@+id/file_sort_button"
+        app:layout_constraintStart_toEndOf="@+id/file_sort_button"
+        app:layout_constraintTop_toTopOf="@+id/file_sort_button" />
+
+    <EditText
+        android:id="@+id/word_search_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="key word"
+        android:inputType="textNoSuggestions"
+        app:layout_constraintBottom_toBottomOf="@+id/file_sort_button"
+        app:layout_constraintEnd_toStartOf="@+id/search_button"
+        app:layout_constraintTop_toTopOf="@+id/file_sort_button" />
+
+    <ImageButton
+        android:id="@+id/search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/word_search_text"
+        app:layout_constraintEnd_toEndOf="@+id/file_list_view"
+        app:layout_constraintTop_toTopOf="@+id/word_search_text"
+        app:srcCompat="@drawable/ic_baseline_search_24" />
+
+    <Button
+        android:id="@+id/file_all_select_button"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="全選択"
+        android:textSize="14sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/file_delete_button"
+        app:layout_constraintStart_toEndOf="@+id/file_delete_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

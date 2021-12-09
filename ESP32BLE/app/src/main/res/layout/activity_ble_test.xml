@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/lineChert1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="64dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ble_test_toolbar" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/ble_test_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#CFCFCF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="scene_menu"
+            android:onClick="showPopup"
+            android:src="@drawable/ic_baseline_list_24" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Bluetoothテスト"
+            android:textColor="#000000"
+            android:textSize="42dp"
+            tools:layout_editor_absoluteX="80dp"
+            tools:layout_editor_absoluteY="4dp" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <Button
+        android:id="@+id/connect_button"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#A3A3A3"
+        android:text="接続を開始"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/lineChert1"
+        app:layout_constraintEnd_toEndOf="@+id/lineChert1"
+        app:layout_constraintTop_toBottomOf="@+id/ble_test_toolbar" />
+
+    <Button
+        android:id="@+id/save"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#A3A3A3"
+        android:text="データ保存"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/lineChert1"
+        app:layout_constraintStart_toStartOf="@+id/lineChert1"
+        app:layout_constraintTop_toBottomOf="@+id/ble_test_toolbar" />
+
+    <Button
+        android:id="@+id/readCSVButton"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="#A3A3A3"
+        android:text="読み込み"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/save"
+        app:layout_constraintStart_toEndOf="@+id/save"
+        app:layout_constraintTop_toTopOf="@+id/save"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/write_a_button"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="#A3A3A3"
+        android:text="加速度"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/readCSVButton"
+        app:layout_constraintTop_toTopOf="@+id/readCSVButton" />
+
+    <Button
+        android:id="@+id/write_p_button"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="#A3A3A3"
+        android:text="圧力"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/write_a_button"
+        app:layout_constraintTop_toTopOf="@+id/write_a_button" />
+
+    <TextView
+        android:id="@+id/test_battery_level"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="--.-%"
+        android:textAlignment="textEnd"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

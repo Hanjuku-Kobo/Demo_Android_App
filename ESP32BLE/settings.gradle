@@ -1,0 +1,3 @@
+rootProject.name = "ESP32BLE"
+include ':app'
+include ':OpenCV'

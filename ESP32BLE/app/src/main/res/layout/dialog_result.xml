@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif"
+        android:text="ゲームリザルト"
+        android:textColor="#000000"
+        android:textSize="36sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/pose_detect_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:fontFamily="sans-serif-black"
+        android:text="成功回数"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/classify_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif-black"
+        android:text="失敗回数"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@+id/pose_detect_text"
+        app:layout_constraintTop_toBottomOf="@+id/pose_detect_text" />
+
+    <TextView
+        android:id="@+id/success_val"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="124dp"
+        android:text="0回"
+        android:textAlignment="textEnd"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/pose_detect_text"
+        app:layout_constraintTop_toTopOf="@+id/pose_detect_text" />
+
+    <TextView
+        android:id="@+id/failure_val"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0回"
+        android:textAlignment="textEnd"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@+id/success_val"
+        app:layout_constraintTop_toTopOf="@+id/classify_text" />
+</androidx.constraintlayout.widget.ConstraintLayout>
