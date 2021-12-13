@@ -94,11 +94,6 @@ public class ObjectClassifier {
         this.outClasses = new float[1][NUM_DETECTIONS];
         this.outScores = new float[1][NUM_DETECTIONS];
         this.numDetections = new float[1];
-        this.outBitmap = Bitmap.createBitmap(
-                CameraActivity.layoutWidget,
-                CameraActivity.layoutHeight,
-                Bitmap.Config.ARGB_8888);
-        this.outCanvas = new Canvas(outBitmap);
         this.outPaint = new Paint();
     }
 
@@ -136,6 +131,16 @@ public class ObjectClassifier {
 
     // 推論
     public Bitmap predict(Bitmap bitmap) {
+        // 先にリサイズする
+        if (useVideo != null) {
+            this.outBitmap = Bitmap.createBitmap(
+                    CameraActivity.videoViewWidget, CameraActivity.videoViewHeight, Bitmap.Config.ARGB_8888);
+        } else {
+            this.outBitmap = Bitmap.createBitmap(
+                    CameraActivity.cameraViewWidget, CameraActivity.cameraViewHeight, Bitmap.Config.ARGB_8888);
+        }
+        this.outCanvas = new Canvas(outBitmap);
+
         // 入力画像の生成
         int minSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
         int dx = (bitmap.getWidth()-minSize)/2;
@@ -159,29 +164,34 @@ public class ObjectClassifier {
         // 結果の取得
         int numDetectionsOutput = Math.min(NUM_DETECTIONS, (int)numDetections[0]);
         ArrayList<Recognition> recongnitions = new ArrayList<>(numDetectionsOutput);
-        for (int i = 0; i < numDetectionsOutput; ++i) {
-            RectF detection = new RectF(
-                    outLocations[0][i][1] * CameraActivity.layoutWidget,
-                    outLocations[0][i][0] * CameraActivity.layoutHeight,
-                    outLocations[0][i][3] * CameraActivity.layoutWidget,
-                    outLocations[0][i][2] * CameraActivity.layoutHeight);
-            int labelOffset = 1;
-            recongnitions.add(new Recognition(""+i,
-                    labels.get((int) outClasses[0][i]+labelOffset), outScores[0][i], detection));
+        if (useVideo != null) {
+            for (int i = 0; i < numDetectionsOutput; ++i) {
+                RectF detection = new RectF(
+                        outLocations[0][i][1] * CameraActivity.videoViewWidget,
+                        outLocations[0][i][0] * CameraActivity.videoViewHeight,
+                        outLocations[0][i][3] * CameraActivity.videoViewWidget,
+                        outLocations[0][i][2] * CameraActivity.videoViewHeight);
+                int labelOffset = 1;
+                recongnitions.add(new Recognition(""+i,
+                        labels.get((int) outClasses[0][i]+labelOffset), outScores[0][i], detection));
+            }
+        } else {
+            for (int i = 0; i < numDetectionsOutput; ++i) {
+                RectF detection = new RectF(
+                        outLocations[0][i][1] * CameraActivity.cameraViewWidget,
+                        outLocations[0][i][0] * CameraActivity.cameraViewHeight,
+                        outLocations[0][i][3] * CameraActivity.cameraViewWidget,
+                        outLocations[0][i][2] * CameraActivity.cameraViewHeight);
+                int labelOffset = 1;
+                recongnitions.add(new Recognition(""+i,
+                        labels.get((int) outClasses[0][i]+labelOffset), outScores[0][i], detection));
+            }
         }
 
         // 出力画像の生成
         outCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         outPaint.setTextSize(12);
         outPaint.setAntiAlias(true);
-
-        bitmap = Bitmap.createScaledBitmap(
-                bitmap, CameraActivity.layoutWidget , CameraActivity.layoutHeight, false);
-
-        // 元画像を先にcanvasに書き込む
-        if (useVideo != null) {
-            outCanvas.drawBitmap(bitmap, 0, 0, (Paint)null);
-        }
 
         if (PoseSettingFragment.targetTitle == null) {
             for (Recognition recognition :  recongnitions) {

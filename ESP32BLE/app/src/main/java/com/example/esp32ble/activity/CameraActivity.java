@@ -2,16 +2,18 @@ package com.example.esp32ble.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
@@ -32,17 +34,12 @@ import com.example.esp32ble.R;
 import com.example.esp32ble.fragment.PoseSettingFragment;
 import com.example.esp32ble.fragment.ShortcutButtonFragment;
 import com.example.esp32ble.ml.*;
-import com.example.esp32ble.usecases.JavacvController;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
-import org.opencv.android.Utils;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.videoio.VideoCapture;
-
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,7 +58,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private Fragment shortcutButtonFragment;
 
     private VisionImageProcessor imageProcessor;
-    private GraphicOverlay graphicOverlay;
+    public static GraphicOverlay graphicOverlay;
 
     private ImageButton openSetting;
 
@@ -76,8 +73,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     public static Context poseContext ;
 
-    public static int layoutWidget = 0;
-    public static int layoutHeight = 0;
+    public static int cameraViewWidget;
+    public static int cameraViewHeight;
+
+    public static int videoViewWidget;
+    public static int videoViewHeight;
 
     public static String[] getLandmarks() {
         return poseContext.getResources().getStringArray(R.array.landmarks);
@@ -117,6 +117,22 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             ActivityCompat.requestPermissions(
                     this, permissions, requestPermissionCode);
         }
+
+        ViewTreeObserver observer = cameraView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                // viewサイズを取得
+                cameraViewWidget = cameraView.getWidth();
+                cameraViewHeight = cameraView.getHeight();
+
+                videoViewWidget = videoView.getWidth();
+                videoViewHeight = videoView.getHeight();
+
+                Log.i("TEST", "VideoView = " + videoViewWidget + ":" + videoViewHeight);
+                Log.i("TEST", "CameraView = " + cameraViewWidget + ":" + cameraViewHeight);
+            }
+        });
     }
 
     @Override
@@ -136,11 +152,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-
-        layoutWidget = cameraView.getWidth();
-        layoutHeight = cameraView.getHeight();
-
-        Log.i("Layout size", layoutWidget+":"+layoutHeight);
 
         if (hasFocus) {
             View decorView = getWindow().getDecorView();
@@ -320,24 +331,26 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     // 画像や動画を扱う
+    public void initDetectorOption() {
+        // 画像でやるとgraphicOverlayの情報が変わる
+        // だからtrueにし、再びカメラを起動したときに情報を変えるようにする
+        needUpdateGraphicOverlayImageSourceInfo = true;
+
+        initPoseDetector(PoseDetectorOptions.SINGLE_IMAGE_MODE);
+    }
+
     public void showSelectImage(Bitmap bitmap) {
         if (bitmap != null) {
             imageView.setVisibility(View.VISIBLE);
+            videoView.setVisibility(View.INVISIBLE);
             cameraView.setVisibility(View.INVISIBLE);
 
-            // 画像でやるとgraphicOverlayの情報が変わる
-            // だからtrueにし、再びカメラを起動したときに情報を変えるようにする
-            needUpdateGraphicOverlayImageSourceInfo = true;
-
-            initPoseDetector(PoseDetectorOptions.SINGLE_IMAGE_MODE);
+            videoView.stopPlayback();
 
             staticBitmap = Bitmap.createScaledBitmap(
                     bitmap, 480, 640, false);
 
             processImage();
-        } else {
-            imageView.setVisibility(View.INVISIBLE);
-            cameraView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -346,8 +359,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         // isFlippedを [ture] にするとこれ以降bitmapをさわるときにエラーが起きる
         graphicOverlay.setImageSourceInfo(
-                staticBitmap.getWidth(), staticBitmap.getHeight(), false
-        );
+                staticBitmap.getWidth(), staticBitmap.getHeight(), false);
 
         // 画像を表示
         imageView.setImageBitmap(staticBitmap);
@@ -355,48 +367,35 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         imageProcessor.processBitmap(staticBitmap, graphicOverlay);
     }
 
-    public Bitmap processImage(Bitmap bitmap) {
-        return imageProcessor.processBitmap(bitmap);
-    }
-
-
-    public void initImageView() {
-        imageView.setVisibility(View.VISIBLE);
-        cameraView.setVisibility(View.INVISIBLE);
-
-        // 画像でやるとgraphicOverlayの情報が変わる
-        // だからtrueにし、再びカメラを起動したときに情報を変えるようにする
-        needUpdateGraphicOverlayImageSourceInfo = true;
-
-        initPoseDetector(PoseDetectorOptions.STREAM_MODE);
-    }
-
     public void showSelectVideo(String path) {
         if (path != null) {
             videoView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.INVISIBLE);
             cameraView.setVisibility(View.INVISIBLE);
 
+            graphicOverlay.clear();
+            stopCamera();
+
             videoView.setVideoPath(path);
-            //videoView.setVideoURI(uri);
 
             videoView.setMediaController(new MediaController(this));
 
             videoView.start();
-        } else {
-            videoView.setVisibility(View.INVISIBLE);
-            cameraView.setVisibility(View.VISIBLE);
-
-            videoView.stopPlayback();
         }
+    }
 
-        /*
-        videoのcontrolについて
+    public Bitmap processBitmap(Bitmap bitmap) {
+        return imageProcessor.processBitmap(bitmap);
+    }
 
-        VideoView#start()：再生開始
-        VideoView#pause()：一時停止
-        VideoView#seekTo(int msec)：シーク
-        VideoView#stopPlayBack()：再生停止
-         */
+    public void setVideoView(int scaleX, int scaleY) {
+        // viewのサイズを変更する
+        ViewGroup.LayoutParams params = videoView.getLayoutParams();
+
+        params.width = scaleX;
+        params.height = scaleY;
+
+        videoView.setLayoutParams(params);
     }
 
     public void startCountUpTimer() {

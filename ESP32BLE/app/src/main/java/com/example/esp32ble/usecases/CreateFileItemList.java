@@ -1,6 +1,7 @@
 package com.example.esp32ble.usecases;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.esp32ble.R;
+import com.example.esp32ble.activity.FileServiceActivity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -56,10 +58,15 @@ public class CreateFileItemList {
     public static class CustomAdapterCheckbox extends ArrayAdapter<Item> {
 
         public static Map<Integer, Boolean> checkList = new HashMap<>();
+        private FileServiceActivity activity;
 
         public CustomAdapterCheckbox(Context con, int resource, List<Item> objects) {
             super(con, resource, objects);
             layoutInflater = (LayoutInflater) con.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        public void setActivity(FileServiceActivity activity) {
+            this.activity = activity;
         }
 
         @Override
@@ -81,6 +88,8 @@ public class CreateFileItemList {
 
                     Item data = getItem(position);
                     data.setChecked(isChecked);
+
+                    checkBoxEvaluation();
                 }
             });
 
@@ -92,6 +101,18 @@ public class CreateFileItemList {
 
             Item data = getItem(position);
             data.setChecked(isChecked);
+
+            checkBoxEvaluation();
+        }
+
+        private void checkBoxEvaluation() {
+            for (int i=0; i<checkList.size(); i++) {
+                if (checkList.get(i)) {
+                    activity.setDeleteButtonText(true);
+                    return;
+                }
+            }
+            activity.setDeleteButtonText(false);
         }
     }
 }

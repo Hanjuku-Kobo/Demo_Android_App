@@ -22,7 +22,7 @@ import io.reactivex.schedulers.Schedulers;
 public class BitmapToVideoEncoder {
     private static final String TAG = BitmapToVideoEncoder.class.getSimpleName();
 
-    private IBitmapToVideoEncoderCallback mCallback;
+    private final IBitmapToVideoEncoderCallback mCallback;
     private File mOutputFile;
     private Queue<Bitmap> mEncodeQueue = new ConcurrentLinkedQueue<>();
     private MediaCodec mediaCodec;

@@ -2,6 +2,7 @@ package com.example.esp32ble.ml;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,9 +18,6 @@ import com.example.esp32ble.fragment.PoseSettingFragment;
 import com.example.esp32ble.fragment.ShortcutButtonFragment;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
-import com.google.android.gms.tasks.Tasks;
-import com.google.android.odml.image.MlImage;
-import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.common.InputImage;
 
 import java.util.Timer;
@@ -41,13 +39,14 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
     // 画像や動画で検出を行うときに必要
     private Bitmap staticImageBitmap;
+    private Bitmap poseBitmap;
 
     protected VisionProcessorBase(Context context) {
         this.context = context;
         executor = new ScopedExecutor(TaskExecutors.MAIN_THREAD);
     }
 
-    // process image or movie
+    // process image
     @Override
     public void processBitmap(Bitmap bitmap, final GraphicOverlay graphicOverlay) {
         staticImageBitmap = bitmap;
@@ -67,10 +66,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         else if(ShortcutButtonFragment.isObjectClassify) {
             Bitmap result = objectClassifier.predict(bitmap);
 
-            if (useVideo != null) {
-                return;
-            }
-
             graphicOverlay.clear();
 
             graphicOverlay.add(new ObjectGraphic(graphicOverlay, result));
@@ -81,18 +76,37 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         }
     }
 
+    // process video
     @Override
     public Bitmap processBitmap(Bitmap bitmap) {
+        Bitmap result = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas outCanvas = new Canvas(result);
+
+        Bitmap objectResult = null;
+
         if (objectClassifier == null) {
             // Object classification
             objectClassifier = new ObjectClassifier(context);
         }
 
-        if(ShortcutButtonFragment.isObjectClassify) {
-            bitmap = objectClassifier.predict(bitmap);
+        if (ShortcutButtonFragment.requestDetect){
+            poseBitmap = requestDetectInImage(
+                    InputImage.fromBitmap(bitmap, 0),
+                    CameraActivity.graphicOverlay);
         }
 
-        return bitmap;
+        if(ShortcutButtonFragment.isObjectClassify) {
+            objectResult = objectClassifier.predict(bitmap);
+        }
+
+        outCanvas.drawBitmap(bitmap, 0, 0, null);
+        if (poseBitmap != null) {
+            outCanvas.drawBitmap(poseBitmap, 0, 0, null);
+            poseBitmap = null;
+        }
+        if (objectResult != null) outCanvas.drawBitmap(objectResult, 0, 0, null);
+
+        return result;
     }
 
     // real time
@@ -105,7 +119,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
             return;
         }
 
-        if (objectClassifier == null && CameraActivity.layoutHeight != 0) {
+        if (objectClassifier == null) {
             // Object classification
             objectClassifier = new ObjectClassifier(context);
         }
@@ -117,7 +131,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         }
 
         if (ShortcutButtonFragment.requestDetect){
-
             requestDetectInImage(
                     InputImage.fromMediaImage(image.getImage(), image.getImageInfo().getRotationDegrees()),
                     graphicOverlay,
@@ -161,6 +174,12 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                 detectInImage(image), graphicOverlay, originalCameraImage);
     }
 
+    private Bitmap requestDetectInImage(
+            final InputImage image,
+            final GraphicOverlay graphicOverlay) {
+        return setUpListener(detectInImage(image), graphicOverlay);
+    }
+
     private Task<T> setUpListener(
             Task<T> task,
             final GraphicOverlay graphicOverlay,
@@ -174,7 +193,8 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                         graphicOverlay.add(new CameraImageGraphic(graphicOverlay, originalCameraImage));
                     }
 
-                    VisionProcessorBase.this.onSuccess(results, graphicOverlay);
+                    VisionProcessorBase.this.onSuccess(results, graphicOverlay, this);
+                    if (useVideo != null) return;
 
                     if (ShortcutButtonFragment.isObjectClassify) {
                         if (originalCameraImage != null) {
@@ -210,6 +230,42 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                         });
     }
 
+    private Bitmap setUpListener(Task<T> task, final GraphicOverlay graphicOverlay) {
+        task.addOnSuccessListener(
+                executor,
+                results -> {
+                    setPoseBitmap(this.onSuccessBitmap(results));
+                })
+                .addOnFailureListener(
+                        executor,
+                        e -> {
+                            String error = "Failed to process. Error: " + e.getLocalizedMessage();
+                            Toast.makeText(
+                                    graphicOverlay.getContext(),
+                                    error + "\nCause: " + e.getCause(),
+                                    Toast.LENGTH_SHORT)
+                                    .show();
+                            Log.d(TAG, error);
+                            e.printStackTrace();
+                            VisionProcessorBase.this.onFailure(e);
+                        });
+
+        Bitmap result;
+        do {
+            result = getPoseBitmap();
+        } while (result == null);
+
+        return result;
+    }
+
+    private Bitmap getPoseBitmap() {
+        return poseBitmap;
+    }
+
+    public void setPoseBitmap(Bitmap bitmap) {
+        poseBitmap = bitmap;
+    }
+
     @Override
     public void stop() {
         executor.shutdown();
@@ -228,7 +284,9 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
     protected abstract Task<T> detectInImage(InputImage image);
 
-    protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay);
+    protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay, VisionProcessorBase processorBase);
+
+    protected abstract Bitmap onSuccessBitmap(@NonNull T results);
 
     protected abstract void onFailure(@NonNull Exception e);
 }

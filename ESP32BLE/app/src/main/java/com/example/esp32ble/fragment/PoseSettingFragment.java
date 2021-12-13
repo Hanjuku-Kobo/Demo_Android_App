@@ -1,6 +1,7 @@
 package com.example.esp32ble.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,8 +32,9 @@ import com.example.esp32ble.R;
 import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.dialog.ProgressDialog;
 import com.example.esp32ble.ml.PoseGraphic;
-import com.example.esp32ble.usecases.JavacvController;
+import com.example.esp32ble.usecases.VideoProcessor;
 
+import org.checkerframework.checker.units.qual.A;
 import org.opencv.videoio.VideoCapture;
 
 import java.io.FileDescriptor;
@@ -48,7 +50,7 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
     private ProgressDialog dialog;
 
-    private JavacvController cvController;
+    private VideoProcessor videoProcessor;
 
     public static boolean isVisualizeZ = false;
     public static boolean isClassification = false;
@@ -70,7 +72,7 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
     public static Bitmap useImage;
     public static Uri useVideo;
-    private VideoCapture videoCapture;
+    private static VideoCapture videoCapture;
 
     private TextView imageStateText;
     private TextView videoStateText;
@@ -150,7 +152,7 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
         dialog = new ProgressDialog();
 
         // useCase
-        cvController = new JavacvController(this, activity);
+        videoProcessor = new VideoProcessor(this, activity);
 
         // 既存の情報からcheckを設定
         backCamera.setChecked(!ShortcutButtonFragment.requestFrontCamera);
@@ -275,6 +277,7 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
                     activity.initCamera();
                     activity.startCamera();
                 } else {
+                    activity.initDetectorOption();
                     if (useImage != null) {
                         Log.i("TEST", "image");
 
@@ -283,23 +286,24 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
                     } else {
                         Log.i("TEST", "video");
 
-                        activity.initImageView();
+                        // 取込み中のプログレスバーを表示する
+                        AlertDialog progressAlertDialog = new AlertDialog.Builder(activity)
+                                .setTitle("検出&保存中")
+                                .setView(R.layout.dialog_progress_bar)
+                                .create();
+                        progressAlertDialog.setCancelable(false);
+                        progressAlertDialog.setCanceledOnTouchOutside(false);
+                        progressAlertDialog.show();
 
-                        Bundle args = new Bundle();
-                        args.putString("title", "動画を読み込み中");
-                        dialog.setArguments(args);
-                        dialog.show(activity.getSupportFragmentManager(), "progress");
-
-                        // frameを切り出す
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                cvController.getVideoFrames(videoCapture, dialog);
+                                // frameを切り出す
+                                videoProcessor.getVideoFrames(videoCapture, progressAlertDialog);
                             }
                         }, 500);
                     }
                 }
-
                 break;
         }
     }
@@ -342,12 +346,11 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
                 dialog.setArguments(args);
                 dialog.show(getFragmentManager(), "progress");
 
-                // 1秒後に動画を読み込ませる
+                // 0.3秒後に動画を読み込ませる
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        cvController.getDivideFrames(context, uri);
-                        //cvController.setFilePath(context, useVideo);
+                        videoProcessor.getDivideFrames(context, uri);
                     }
                 }, 300);
             }
@@ -356,7 +359,7 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
     public void deleteDialog(VideoCapture videoCapture) {
         if (videoCapture != null) {
-            this.videoCapture = videoCapture;
+            PoseSettingFragment.videoCapture = videoCapture;
         }
 
         dialog.dismiss();

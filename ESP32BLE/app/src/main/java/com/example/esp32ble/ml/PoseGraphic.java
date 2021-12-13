@@ -1,11 +1,14 @@
 package com.example.esp32ble.ml;
 
+import static com.example.esp32ble.fragment.PoseSettingFragment.useVideo;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.fragment.ShortcutButtonFragment;
@@ -14,6 +17,8 @@ import com.google.mlkit.vision.common.PointF3D;
 import com.example.esp32ble.ml.GraphicOverlay.Graphic;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
+
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 import java.util.Locale;
@@ -44,14 +49,19 @@ public class PoseGraphic extends Graphic {
     public static boolean isViewUpperDegree = false;
     public static boolean isViewLowerDegree = false;
 
+    private final VisionProcessorBase processorBase;
+    private Bitmap outBitmap;
+
     PoseGraphic(
             GraphicOverlay overlay,
+            VisionProcessorBase processorBase,
             Pose pose,
             boolean showInFrameLikelihood,
             boolean visualizeZ,
             boolean rescaleZForVisualization,
             List<String> poseClassification) {
         super(overlay);
+        this.processorBase = processorBase;
         this.pose = pose;
         this.showInFrameLikelihood = showInFrameLikelihood;
         this.visualizeZ = visualizeZ;
@@ -80,6 +90,12 @@ public class PoseGraphic extends Graphic {
 
     @Override
     public void draw(Canvas canvas) {
+        if (useVideo != null) {
+            outBitmap = Bitmap.createBitmap(
+                    CameraActivity.videoViewWidget, CameraActivity.videoViewHeight, Bitmap.Config.ARGB_8888);
+            canvas = new Canvas(outBitmap);
+        }
+
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
         if (landmarks.isEmpty()) {
             return;
@@ -266,6 +282,11 @@ public class PoseGraphic extends Graphic {
 
             PoseDataProcess.keyCount++;
         }
+
+        if (useVideo != null) {
+            Log.i("TEST", "PoseCall");
+            processorBase.setPoseBitmap(outBitmap);
+        }
     }
 
     void drawPoint(Canvas canvas, PoseLandmark landmark, Paint paint) {
@@ -321,15 +342,6 @@ public class PoseGraphic extends Graphic {
                 String.valueOf(text),
                 translateX(midPoint.getPosition().x) + 10,
                 translateY(midPoint.getPosition().y),
-                whitePaint
-        );
-    }
-
-    void drawStrideText(Canvas canvas, float xCriteria, float yCriteria, float text) {
-        canvas.drawText(
-                String.format(Locale.US, "%.2f", text),
-                translateX(xCriteria - 5),
-                translateY(yCriteria + 20),
                 whitePaint
         );
     }

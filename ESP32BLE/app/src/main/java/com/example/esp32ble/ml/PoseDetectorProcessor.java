@@ -1,10 +1,13 @@
 package com.example.esp32ble.ml;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.odml.image.MlImage;
 import com.google.mlkit.vision.common.InputImage;
@@ -12,6 +15,8 @@ import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,16 +100,32 @@ public class PoseDetectorProcessor
     @Override
     protected void onSuccess(
             @NonNull PoseWithClassification poseWithClassification,
-            @NonNull GraphicOverlay graphicOverlay) {
+            @NonNull GraphicOverlay graphicOverlay,
+            VisionProcessorBase processorBase) {
 
             graphicOverlay.add(new PoseGraphic(
                     graphicOverlay,
+                    processorBase,
                     poseWithClassification.pose,
                     showInFrameLikelihood,
                     visualizeZ,
                     rescaleZForVisualization,
                     poseWithClassification.classificationResult)
             );
+    }
+
+    @Override
+    protected Bitmap onSuccessBitmap(
+            @NonNull PoseWithClassification poseWithClassification) {
+
+            PoseGraphicBitmap poseGraphicBitmap = new PoseGraphicBitmap(
+                    poseWithClassification.pose,
+                    showInFrameLikelihood,
+                    visualizeZ,
+                    rescaleZForVisualization,
+                    poseWithClassification.classificationResult);
+
+            return poseGraphicBitmap.onDraw();
     }
 
     @Override

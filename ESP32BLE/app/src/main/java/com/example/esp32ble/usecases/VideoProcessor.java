@@ -1,9 +1,11 @@
 package com.example.esp32ble.usecases;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
@@ -11,42 +13,59 @@ import android.os.Looper;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
+import androidx.core.os.HandlerCompat;
+
 import com.arthenica.mobileffmpeg.FFmpeg;
+import com.example.esp32ble.R;
 import com.example.esp32ble.activity.CameraActivity;
-import com.example.esp32ble.dialog.ProgressDialog;
 import com.example.esp32ble.fragment.PoseSettingFragment;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.osgi.OpenCVInterface;
 import org.opencv.videoio.VideoCapture;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
-public class JavacvController {
+public class VideoProcessor {
 
-    private CameraActivity activity;
-    private PoseSettingFragment fragment;
+    private final CameraActivity activity;
+    private final PoseSettingFragment fragment;
 
-    private Context context;
+    private final Context context;
 
-    private int videoWidth;
-    private int videoHeight;
+    public static int videoWidth;
+    public static int videoHeight;
+
+    private int resultScaleX;
+    private int resultScaleY;
+
+    private int aspectX;
+    private int aspectY;
 
     // 出力用のパスを指定
     private String outputPath = "/storage/emulated/0/Android/data/com.example.esp32ble/output";
     private String resultPath = "/storage/emulated/0/Android/data/com.example.esp32ble/result";
 
+    private int usedFrames;
+    private int frameCount;
+
+    private ProgressBar progressBar;
+
     static {
         System.loadLibrary("opencv_java4");     // 追加
     }
 
-    public JavacvController(PoseSettingFragment fragment, CameraActivity activity) {
+    public VideoProcessor(PoseSettingFragment fragment, CameraActivity activity) {
         this.fragment = fragment;
         this.activity = activity;
 
@@ -100,14 +119,16 @@ public class JavacvController {
         });
     }
 
-    public void getVideoFrames(VideoCapture videoCapture, ProgressDialog dialog) {
+    public void getVideoFrames(VideoCapture videoCapture, AlertDialog dialog) {
+        progressBar = dialog.findViewById(R.id.ProgressBarHorizontal);
+
         MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
 
         // Pathを指定
         metadataRetriever.setDataSource(outputPath+".mp4");
 
         // フレーム数を取得
-        int frameCount = Integer.parseInt(
+        frameCount = Integer.parseInt(
                 metadataRetriever.extractMetadata(
                         MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
         // 横の長さを取得
@@ -121,7 +142,11 @@ public class JavacvController {
 
         Log.i("TEST", videoWidth + ":" + videoHeight);
 
-        Log.i("TEST", String.valueOf(frameCount));
+        // アスペクト比を取得
+        RatioCalculation ratioCalculation = new RatioCalculation();
+        int[] resultAspects = ratioCalculation.getAspect(videoWidth, videoHeight);
+        aspectX = resultAspects[0];
+        aspectY = resultAspects[1];
 
         BitmapToVideoEncoder bitmapToVideoEncoder = new BitmapToVideoEncoder(new BitmapToVideoEncoder.IBitmapToVideoEncoderCallback() {
             @Override
@@ -144,30 +169,75 @@ public class JavacvController {
         // rows(行): height, cols(列): width
         Mat src = new Mat(videoHeight, videoWidth, CvType.CV_8UC4);
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                while (videoCapture.grab()) {
-                    videoCapture.retrieve(src);
+        Handler handler = HandlerCompat.createAsync(Looper.getMainLooper());
+        handler.post(this::setProgressBarMax);
 
-                    // MatからBitmapに変換
-                    Bitmap img = Bitmap.createBitmap(src.width(), src.height(),
-                            Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(src, img);
+        ExecutorService es = Executors.newWorkStealingPool();
+        try {
+            es.execute(() -> detectFrameTask(handler, videoCapture, src, bitmapToVideoEncoder));
+        } finally {
+            es.shutdown();
+        }
+    }
 
-                    // 検出処理
-                    img = activity.processImage(
-                            Bitmap.createScaledBitmap(img, 480, 640, false));
+    private void detectFrameTask(
+            Handler handler,
+            VideoCapture videoCapture,
+            Mat src,
+            BitmapToVideoEncoder bitmapToVideoEncoder) {
 
-                    bitmapToVideoEncoder.queueFrame(
-                            Bitmap.createScaledBitmap(img, videoWidth, videoHeight, true));
-                }
+        // viewのサイズを動画のアスペクト比に変更する
+        // 倍率を計算
+        int multipleX = CameraActivity.videoViewWidget / aspectX;
+        int multipleY = CameraActivity.videoViewHeight / aspectY;
 
-                src.release();
+        // 低いほうの倍率でサイズを計算
+        if (multipleX < multipleY) {
+            resultScaleX = aspectX * multipleX;
+            resultScaleY = aspectY * multipleX;
+        } else {
+            resultScaleX = aspectX * multipleY;
+            resultScaleY = aspectY * multipleY;
+        }
 
-                bitmapToVideoEncoder.stopEncoding();
-            }
-        });
+        while (videoCapture.grab()) {
+            // フレーム読み込み
+            videoCapture.retrieve(src);
+
+            // MatからBitmapに変換
+            Bitmap img = Bitmap.createBitmap(
+                    src.width(), src.height(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(src, img);
+
+            // 検出処理
+            img = activity.processBitmap(img);
+
+            // エンコード
+            bitmapToVideoEncoder.queueFrame(
+                    Bitmap.createScaledBitmap(
+                            img, img.getWidth(), img.getHeight(), true));
+
+            handler.post(this::poseProgressBar);
+        }
+
+        handler.post(this::postActivity);
+
+        src.release();
+
+        bitmapToVideoEncoder.stopEncoding();
+    }
+
+    private void setProgressBarMax() {
+        progressBar.setMax(frameCount);
+    }
+
+    private void poseProgressBar() {
+        usedFrames++;
+        progressBar.setProgress(frameCount - (frameCount - usedFrames));
+    }
+
+    private void postActivity() {
+        activity.setVideoView(resultScaleX, resultScaleY);
     }
 }
 

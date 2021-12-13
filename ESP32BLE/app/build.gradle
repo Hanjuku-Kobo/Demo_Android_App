@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId "com.example.esp32ble"
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
@@ -79,5 +79,6 @@ dependencies {
     // FFMPEG
     implementation 'com.arthenica:mobile-ffmpeg-full:4.4'
 
+    // video encoder
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
 }

@@ -2,17 +2,22 @@ package com.example.esp32ble.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -36,7 +41,6 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
 
     private ArrayList<String> files;
 
-    private CreateFileItemList fileItemList;
     private InstructionsSave is;
 
     private ListView listView;
@@ -57,6 +61,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(toolbar);
 
         listView = findViewById(R.id.file_list_view);
+        listView.setOnItemClickListener(this::onItemClick);
 
         Button sortButton = findViewById(R.id.file_sort_button);
         sortButton.setOnClickListener(this);
@@ -95,7 +100,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
 
     private void createList(ArrayList<String> inputs) {
         // リストを生成するクラスを呼び出す
-        fileItemList = new CreateFileItemList();
+        CreateFileItemList createFileItemList = new CreateFileItemList();
 
         ArrayList<Item> itemList = new ArrayList<>();
 
@@ -120,8 +125,10 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
                 // 選択モードを解除
                 listView.setChoiceMode(AbsListView.CHOICE_MODE_NONE);
             } else {
-                // 削除するファイルを選択している場合
-                CustomAdapterCheckbox adapter = new CustomAdapterCheckbox(context, 0, itemList);
+                // ファイルを削除する場合
+                CustomAdapterCheckbox adapter
+                        = new CustomAdapterCheckbox(context, 0, itemList);
+                adapter.setActivity(this);
 
                 if (isAllSelect) {
                     for (int i=0; i<inputs.size(); i++) {
@@ -152,7 +159,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.file_delete_button:
                 if (deleteButton.getText().equals("削除選択")) {
-                    deleteButton.setText("削除");
+                    deleteButton.setText("戻る");
                     allSelectButton.setVisibility(View.VISIBLE);
 
                     createList(files);
@@ -198,6 +205,31 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
 
                 break;
         }
+    }
+
+    public void setDeleteButtonText(boolean b) {
+        new Handler(getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (b) {
+                    deleteButton.setText("削除");
+                } else {
+                    deleteButton.setText("戻る");
+                }
+            }
+        });
+    }
+
+    private void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        String fileName = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) + "/" + files.get(position);
+
+        // Dialogを作成
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("ファイル保存場所");
+        builder.setMessage(fileName);
+        builder.setPositiveButton("OK", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private ArrayList<String> squeezeFile() {
