@@ -31,7 +31,7 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
     private ArrayList<String> csvFiles = new ArrayList<>();
 
     private BleTestActivity bleTest;
-    private InstructionsSave is;
+    private final InstructionsSave is;
 
     private Context context;
     private String name;
@@ -55,11 +55,6 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
         LayoutInflater mLayoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         view = mLayoutInflater.inflate(R.layout.dialog_save, null);
-
-        if (context != null){
-            TextView landmark = view.findViewById(R.id.target_landmark);
-            landmark.setVisibility(View.VISIBLE);
-        }
 
         EditText fileName = view.findViewById(R.id.edit_file_name);
         fileName.addTextChangedListener(this);
@@ -94,7 +89,8 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
             bleTest.setSaveButton(state);
         }
         else {
-            new PoseDataProcess().getFileName(name);
+            is.saveCoordinate(name + "_point.csv");
+            is.saveJointAngles(name + "_angle.csv");
         }
 
         dismiss();
@@ -124,6 +120,8 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
                     text.setText("ファイル名が重複しています。変更してください。");
                     text.setTextColor(Color.RED);
 
+                    submit.setEnabled(false);
+
                     return;
                 }
                 i++;
@@ -140,13 +138,9 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
     }
 
     private boolean checkDuplicate(String fileName) {
-        String[] landmarks = CameraActivity.getLandmarks();
-
         for (int i=0; i<csvFiles.size(); i++) {
-            for (String landmark : landmarks) {
-                if (csvFiles.get(i).equals(fileName + landmark + ".csv")) {
-                    return true;
-                }
+            if (csvFiles.get(i).equals(fileName + "_point.csv") && csvFiles.get(i).equals(fileName + "_angle.csv")) {
+                return true;
             }
         }
 

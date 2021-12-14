@@ -63,6 +63,7 @@
 
     <!-- Strings for pose detector landmark name preference -->
     <string-array name="landmarks">
+        <!-- 33 items -->
         <!-- 0 -->
         <item>Nose</item>
         <item>Left_eye_inner</item>
@@ -98,6 +99,25 @@
         <item>Left_foot_index</item>
         <item>Right_foot_index</item>
         <!-- 32 -->
+    </string-array>
+
+    <!-- Strings for pose detector joint name preference -->
+    <string-array name="jointAngles">
+        <!-- 12 items -->
+        <!-- 0 -->
+        <item>Left_shoulder</item>
+        <item>Right_shoulder</item>
+        <item>Left_elbow</item>
+        <item>Right_elbow</item>
+        <item>Left_wrist</item>
+        <item>Right_wrist</item>
+        <item>Left_hip</item>
+        <item>Right_hip</item>
+        <item>Left_knee</item>
+        <item>Right_knee</item>
+        <item>Left_ankle</item>
+        <item>Right_ankle</item>
+        <!-- 11 -->
     </string-array>
     
     <string-array name="squeeze_object">

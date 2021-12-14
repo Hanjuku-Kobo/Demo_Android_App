@@ -126,7 +126,6 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
 
                     activity.startCountUpTimer();
                 }
-
                 else {
                     // 停止
                     saveStop();
@@ -162,17 +161,17 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
 
         saveButton.setImageResource(R.drawable.ic_baseline_save_alt_24);
 
-        if (PoseDataProcess.coordinateMap.size() != 0) {
+        if (PoseDataProcess.coordinates.size() != 0) {
             GetPermissionDialog getPermissionDialog = new GetPermissionDialog();
             getPermissionDialog.show(activity.getSupportFragmentManager(), "save");
         }
     }
 
     private void clearUsedSaveMaps() {
-        if (PoseDataProcess.coordinateMap.size() != 0) {
-            PoseDataProcess.coordinateMap.clear();
-            PoseDataProcess.angleMap.clear();
-            PoseDataProcess.elapsedTime.clear();
+        if (PoseDataProcess.coordinates.size() != 0) {
+            PoseDataProcess.coordinates.clear();
+            PoseDataProcess.jointAngles.clear();
+            PoseDataProcess.timeData.clear();
             PoseDataProcess.keyCount = 0;
             PoseDataProcess.startTime = 0;
         }

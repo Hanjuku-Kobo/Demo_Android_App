@@ -1,26 +1,26 @@
 package com.example.esp32ble.ml;
 
-import com.example.esp32ble.activity.CameraActivity;
-import com.example.esp32ble.usecases.InstructionsSave;
+import android.annotation.SuppressLint;
+
 import com.google.mlkit.vision.pose.PoseLandmark;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static java.lang.Math.atan2;
 
 public class PoseDataProcess {
 
-    public static Map<String, Float> coordinateMap = new HashMap<>();
-    public static Map<String, Long> angleMap = new HashMap<>();
-    public static Map<String, Float> elapsedTime = new HashMap<>();
+    public static Queue<Float> coordinates = new ConcurrentLinkedDeque<>();
+    public static Queue<Float> jointAngles = new ConcurrentLinkedDeque<>();
+    public static ArrayList<String> timeData = new ArrayList<>();
 
     public static int keyCount = 0;
 
     public static long startTime = 0;
-
-    private float xCriteria;
 
     // SAMPLE (firstPoint = rightHip, midPoint = rightKnee, lastPoint = rightAnkle)
     public long getAngle(PoseLandmark firstPoint, PoseLandmark midPoint, PoseLandmark lastPoint){
@@ -43,10 +43,6 @@ public class PoseDataProcess {
         return Math.round(result);
     }
 
-    public float getXCriteria() {
-        return xCriteria;
-    }
-
     public float getReciprocalX(Float defPoint) {
         // フロントカメラ用に数値を逆転させる
         // 240は2倍した数値がx軸のサイズ
@@ -54,106 +50,21 @@ public class PoseDataProcess {
         return 240 + (240 - defPoint);
     }
 
-    public void addCoordinate(PoseLandmark landmark, String poseName, Long angle) {
+    public void setTime() {
+        timeData.add(getDate());       // 日付
+        timeData.add(String.valueOf(getElapsedTime()));// タイマー
+    }
+
+    public void addCoordinate(PoseLandmark landmark, Long angle) {
         float valX = landmark.getPosition().x;
         float valY = landmark.getPosition().y;
 
-        String keyX = poseName + "X" + keyCount;
-        String keyY = poseName + "Y" + keyCount;
-
-        coordinateMap.put(keyX, valX);
-        coordinateMap.put(keyY, valY);
-
         if (angle != null) {
-            String keyAngle = poseName + keyCount;
-            angleMap.put(keyAngle, angle);
+            jointAngles.add(Float.valueOf(angle));
         }
 
-        String keyTime = poseName + keyCount;
-        elapsedTime.put(keyTime, getElapsedTime());
-    }
-
-    public void getFileName(String fileName) {
-        String[] landmarkList = CameraActivity.getLandmarks();
-
-        keyCount--;
-
-        for (String s : landmarkList) {
-            dataSelection(s, fileName);
-        }
-    }
-
-    public void dataSelection(String landmarkName, String fileName) {
-        ArrayList<Float> time = selectionTime(landmarkName);
-        ArrayList<Float> xList = selectionX(landmarkName);
-        ArrayList<Float> yList = selectionY(landmarkName);
-        ArrayList<Long> angleList = selectionAngle(landmarkName);
-
-        InstructionsSave instruct = new InstructionsSave();
-        instruct.saveCoordinate(
-                fileName + landmarkName + ".csv",
-                time,
-                xList,
-                yList,
-                angleList);
-
-        String[] list = CameraActivity.getLandmarks();
-
-        if (landmarkName.equals(list[32])) {
-            instruct.finalCall();
-        }
-    }
-
-    private ArrayList<Float> selectionTime(String name) {
-        ArrayList<Float> dataList = new ArrayList<>();
-
-        for (int i=0; i<=keyCount; i++) {
-            String keyName = name + i;
-
-            dataList.add(elapsedTime.get(keyName));
-        }
-
-        return dataList;
-    }
-
-    private ArrayList<Float> selectionX(String name) {
-        ArrayList<Float> dataList = new ArrayList<>();
-
-        for (int i=0; i<=keyCount; i++) {
-            String keyName = name + "X" + i;
-
-            dataList.add(coordinateMap.get(keyName));
-        }
-
-        return dataList;
-    }
-
-    private ArrayList<Float> selectionY(String name) {
-        ArrayList<Float> dataList = new ArrayList<>();
-
-        for (int i=0; i<=keyCount; i++) {
-            String keyName = name + "Y" + i;
-
-            dataList.add(coordinateMap.get(keyName));
-        }
-
-        return dataList;
-    }
-
-    private ArrayList<Long> selectionAngle(String name) {
-        ArrayList<Long> dataList = new ArrayList<>();
-
-        if (angleMap.get(name + "0") != null) {
-            for (int i=0; i<=keyCount; i++) {
-                String keyName = name + i;
-
-                dataList.add(angleMap.get(keyName));
-            }
-
-            return dataList;
-        }
-
-        return null;
+        coordinates.add(valX);
+        coordinates.add(valY);
     }
 
     public void setStartTime() {
@@ -168,5 +79,14 @@ public class PoseDataProcess {
         long date = System.currentTimeMillis();
 
         return (float) (date - startTime) / 1000;
+    }
+
+    private String getDate() {
+        // 現在日時を取得
+        Date nowDate = new Date();
+        // 表示形式を指定
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(nowDate);
     }
 }

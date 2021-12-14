@@ -83,6 +83,10 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         return poseContext.getResources().getStringArray(R.array.landmarks);
     }
 
+    public static String[] getJointAngles() {
+        return poseContext.getResources().getStringArray(R.array.jointAngles);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

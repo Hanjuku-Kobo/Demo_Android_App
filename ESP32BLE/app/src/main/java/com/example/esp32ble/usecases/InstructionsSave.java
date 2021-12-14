@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.widget.Toast;
 
 import com.example.esp32ble.activity.BleTestActivity;
+import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.ml.PoseDataProcess;
 
 import java.io.BufferedReader;
@@ -149,40 +150,93 @@ public class InstructionsSave {
 
     /* Coordinate */
 
-    public void saveCoordinate(String fileName,
-                               ArrayList<Float> elapsedTime,
-                               ArrayList<Float> xList,
-                               ArrayList<Float> yList,
-                               ArrayList<Long> angleList) {
+    public void saveCoordinate(String fileName) {
         try {
             PrintWriter pw = initSaveProcess(fileName);
 
-            for (int k = 0; k < xList.size(); k++) {
-                // 角度を持っていないランドマークがあるから
-                if (angleList != null) {
-                    pw.print(elapsedTime.get(k));
-                    pw.print(",");
-                    pw.print(xList.get(k));
-                    pw.print(",");
-                    pw.print(yList.get(k));
-                    pw.print(",");
-                    pw.print(angleList.get(k));
-                    pw.println();
-                }
-                else {
-                    pw.print(elapsedTime.get(k));
-                    pw.print(",");
-                    pw.print(xList.get(k));
-                    pw.print(",");
-                    pw.print(yList.get(k));
-                    pw.println();
-                }
+            // ヘッダー部分を書き込み
+            pw.print("時間");
+            pw.print(",");
+            pw.print("タイマー");
+            pw.print(",");
+            // 全部で33個
+            for (int j = 0; j < 33; j++) {
+                pw.print(CameraActivity.getLandmarks()[j]);
+                pw.print(",");
+                pw.print("");
+                pw.print(",");
             }
+            pw.println();
+
+            // 縦列のfor文
+            for (int k = 0; k < PoseDataProcess.keyCount; k++) {
+                // 横列のfor文
+                // 2(時間+タイマー)
+                pw.print(PoseDataProcess.timeData.get(k*2));
+                pw.print(",");
+                pw.print(PoseDataProcess.timeData.get(k*2+1));
+                pw.print(",");
+                // 33(landmark数) * 2(x+y)
+                for (int l = 0; l < 65; l++) {
+                    pw.print(PoseDataProcess.coordinates.poll());
+                    pw.print(",");
+                }
+                // 66個めの","を入れないため
+                pw.print(PoseDataProcess.coordinates.poll());
+                pw.println();
+            }
+
+            // 関節角度が終わったら後処理をする
 
             pw.close();
             osw.close();
             fos.close();
-        }catch (IOException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveJointAngles(String fileName) {
+        try {
+            PrintWriter pw = initSaveProcess(fileName);
+
+            // ヘッダー部分を書き込み
+            pw.print("時間");
+            pw.print(",");
+            pw.print("タイマー");
+            pw.print(",");
+            // 全部で12個
+            for (int j = 0; j < 12; j++) {
+                pw.print(CameraActivity.getJointAngles()[j]);
+                pw.print(",");
+            }
+            pw.println();
+
+            // 縦列のfor文
+            for (int k = 0; k < PoseDataProcess.keyCount; k++) {
+                // 横列のfor文
+                // 2(時間+タイマー)
+                pw.print(PoseDataProcess.timeData.get(k*2));
+                pw.print(",");
+                pw.print(PoseDataProcess.timeData.get(k*2+1));
+                pw.print(",");
+                // 12(landmark数)
+                for (int l = 0; l < 11; l++) {
+                    pw.print(PoseDataProcess.jointAngles.poll());
+                    pw.print(",");
+                }
+                // 12個めの","を入れないため
+                pw.print(PoseDataProcess.jointAngles.poll());
+                pw.println();
+            }
+
+            // 終了処理
+            finalCall();
+
+            pw.close();
+            osw.close();
+            fos.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -190,9 +244,9 @@ public class InstructionsSave {
     public void finalCall() {
         Toast.makeText(context, "保存が完了しました", Toast.LENGTH_SHORT).show();
 
-        PoseDataProcess.coordinateMap.clear();
-        PoseDataProcess.angleMap.clear();
-        PoseDataProcess.elapsedTime.clear();
+        PoseDataProcess.coordinates.clear();
+        PoseDataProcess.jointAngles.clear();
+        PoseDataProcess.timeData.clear();
         PoseDataProcess.keyCount = 0;
         PoseDataProcess.startTime = 0;
     }

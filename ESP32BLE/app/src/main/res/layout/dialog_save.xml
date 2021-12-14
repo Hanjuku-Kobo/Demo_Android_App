@@ -26,15 +26,6 @@
             android:inputType="none|textNoSuggestions" />
 
         <TextView
-            android:id="@+id/target_landmark"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="landmark name"
-            android:textAlignment="viewStart"
-            android:textSize="28dp"
-            android:visibility="gone"/>
-
-        <TextView
             android:id="@+id/object_detect_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
