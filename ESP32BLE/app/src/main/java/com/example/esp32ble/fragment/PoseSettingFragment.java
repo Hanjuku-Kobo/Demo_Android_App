@@ -48,10 +48,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
     private final CameraActivity activity;
     private final Context context;
 
-    private ProgressDialog dialog;
-
-    private VideoProcessor videoProcessor;
-
     public static boolean isVisualizeZ = false;
     public static boolean isClassification = false;
     public static String targetTitle = null;
@@ -72,7 +68,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
     public static Bitmap useImage;
     public static Uri useVideo;
-    private static VideoCapture videoCapture;
 
     private TextView imageStateText;
     private TextView videoStateText;
@@ -147,12 +142,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
         // fragment close
         ImageButton closeButton = view.findViewById(R.id.close_fragment_button);
         closeButton.setOnClickListener(this::onClick);
-
-        // dialog
-        dialog = new ProgressDialog();
-
-        // useCase
-        videoProcessor = new VideoProcessor(this, activity);
 
         // 既存の情報からcheckを設定
         backCamera.setChecked(!ShortcutButtonFragment.requestFrontCamera);
@@ -286,22 +275,15 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
                     } else {
                         Log.i("TEST", "video");
 
-                        // 取込み中のプログレスバーを表示する
-                        AlertDialog progressAlertDialog = new AlertDialog.Builder(activity)
-                                .setTitle("検出&保存中")
+                        AlertDialog progressDialog = new AlertDialog.Builder(activity)
+                                .setTitle("入力処理中")
                                 .setView(R.layout.dialog_progress_bar)
                                 .create();
-                        progressAlertDialog.setCancelable(false);
-                        progressAlertDialog.setCanceledOnTouchOutside(false);
-                        progressAlertDialog.show();
+                        progressDialog.setCancelable(false);
+                        progressDialog.setCanceledOnTouchOutside(false);
+                        progressDialog.show();
 
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                // frameを切り出す
-                                videoProcessor.getVideoFrames(videoCapture, progressAlertDialog);
-                            }
-                        }, 500);
+                        new VideoProcessor(activity, context, useVideo, progressDialog);
                     }
                 }
                 break;
@@ -340,29 +322,8 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
                 videoSelectButton.setImageResource(R.drawable.ic_baseline_close_24);
                 imageSelectButton.setImageResource(R.drawable.ic_baseline_search_24);
-
-                Bundle args = new Bundle();
-                args.putString("title", "動画を読み込み中");
-                dialog.setArguments(args);
-                dialog.show(getFragmentManager(), "progress");
-
-                // 0.3秒後に動画を読み込ませる
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        videoProcessor.getDivideFrames(context, uri);
-                    }
-                }, 300);
             }
         }
-    }
-
-    public void deleteDialog(VideoCapture videoCapture) {
-        if (videoCapture != null) {
-            PoseSettingFragment.videoCapture = videoCapture;
-        }
-
-        dialog.dismiss();
     }
 
     private void changeTextView(TextView view, boolean bool) {

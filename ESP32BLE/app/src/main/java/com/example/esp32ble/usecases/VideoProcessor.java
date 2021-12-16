@@ -23,6 +23,7 @@ import androidx.core.os.HandlerCompat;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.example.esp32ble.R;
 import com.example.esp32ble.activity.CameraActivity;
+import com.example.esp32ble.dialog.ProgressDialog;
 import com.example.esp32ble.fragment.PoseSettingFragment;
 
 import org.opencv.android.Utils;
@@ -31,6 +32,7 @@ import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
 import java.io.File;
+import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,7 +41,6 @@ import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 public class VideoProcessor {
 
     private final CameraActivity activity;
-    private final PoseSettingFragment fragment;
 
     private final Context context;
 
@@ -53,27 +54,37 @@ public class VideoProcessor {
     private int aspectY;
 
     // 出力用のパスを指定
-    private String outputPath = "/storage/emulated/0/Android/data/com.example.esp32ble/output";
-    private String resultPath = "/storage/emulated/0/Android/data/com.example.esp32ble/result";
+    private final String outputPath = "/storage/emulated/0/Android/data/com.example.esp32ble/output";
+    private final String resultPath = "/storage/emulated/0/Android/data/com.example.esp32ble/result";
 
     private int usedFrames;
     private int frameCount;
 
-    private ProgressBar progressBar;
+    private final ExecutorService es = Executors.newWorkStealingPool();
+    private final Handler handler = HandlerCompat.createAsync(Looper.getMainLooper());
 
     static {
         System.loadLibrary("opencv_java4");     // 追加
     }
 
-    public VideoProcessor(PoseSettingFragment fragment, CameraActivity activity) {
-        this.fragment = fragment;
-        this.activity = activity;
+    public VideoProcessor(
+            CameraActivity activity,
+            Context context,
+            Uri uri,
+            AlertDialog dialog) {
 
-        this.context = activity.getApplicationContext();
+        this.activity = activity;
+        this.context = context;
+
+        getDivideFrames(context, uri, dialog);
     }
 
     // opencvを使う用
-    public void getDivideFrames(Context context, Uri uri) {
+    public void getDivideFrames(Context context, Uri uri, AlertDialog dialog) {
+        ProgressBar progressBar = dialog.findViewById(R.id.ProgressBarHorizontal);
+
+        handler.post(setProgressBarMax(progressBar, 3));
+
         // uriからPathへ変換
         String id = DocumentsContract.getDocumentId(uri);
         ContentResolver contentResolver = context.getContentResolver();
@@ -86,10 +97,11 @@ public class VideoProcessor {
         String path = cursor.getString(cursor.getColumnIndexOrThrow(columns[0]));
         cursor.close();
 
+        handler.post(setProgressBarVal(progressBar, 1));
+
         // 処理中は画面が固まるため別スレッドで実行する
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
+        try {
+            es.execute(() -> {
                 // mp4からmjpegに変換
                 int ra = FFmpeg.execute("-y -i " + path + " -c:v mpeg4 " + outputPath + ".mjpeg");
                 if (ra == RETURN_CODE_SUCCESS) {
@@ -97,6 +109,8 @@ public class VideoProcessor {
                 } else {
                     Log.i("TEST", String.format("FFmpeg command execution failed.", ra));
                 }
+
+                handler.post(setProgressBarVal(progressBar, 2));
 
                 // mjpegからmp4に変換
                 int rc = FFmpeg.execute("-y -i " + outputPath + ".mjpeg" + " -c:v mpeg4 " + outputPath + ".mp4");
@@ -108,19 +122,23 @@ public class VideoProcessor {
 
                 VideoCapture videoCapture = new VideoCapture(outputPath + ".mp4");
 
+                handler.post(setProgressBarVal(progressBar, 3));
+
                 if (videoCapture.isOpened()) {
                     Log.i("TEST", "true");
-                    fragment.deleteDialog(videoCapture);
+                    getVideoFrames(videoCapture, dialog);
                 } else {
                     Log.i("TEST", "false");
-                    fragment.deleteDialog(null);
+                    dialog.dismiss();
                 }
-            }
-        });
+            });
+        } finally {
+            es.shutdown();
+        }
     }
 
     public void getVideoFrames(VideoCapture videoCapture, AlertDialog dialog) {
-        progressBar = dialog.findViewById(R.id.ProgressBarHorizontal);
+        ProgressBar progressBar = dialog.findViewById(R.id.ProgressBarHorizontal);
 
         MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
 
@@ -169,12 +187,11 @@ public class VideoProcessor {
         // rows(行): height, cols(列): width
         Mat src = new Mat(videoHeight, videoWidth, CvType.CV_8UC4);
 
-        Handler handler = HandlerCompat.createAsync(Looper.getMainLooper());
-        handler.post(this::setProgressBarMax);
+        handler.post(setDialogTitle(dialog, "出力処理中"));
+        handler.post(setProgressBarMax(progressBar, frameCount));
 
-        ExecutorService es = Executors.newWorkStealingPool();
         try {
-            es.execute(() -> detectFrameTask(handler, videoCapture, src, bitmapToVideoEncoder));
+            es.execute(() -> detectFrameTask(handler, videoCapture, src, bitmapToVideoEncoder, progressBar));
         } finally {
             es.shutdown();
         }
@@ -184,7 +201,8 @@ public class VideoProcessor {
             Handler handler,
             VideoCapture videoCapture,
             Mat src,
-            BitmapToVideoEncoder bitmapToVideoEncoder) {
+            BitmapToVideoEncoder bitmapToVideoEncoder,
+            ProgressBar progressBar) {
 
         // viewのサイズを動画のアスペクト比に変更する
         // 倍率を計算
@@ -217,7 +235,8 @@ public class VideoProcessor {
                     Bitmap.createScaledBitmap(
                             img, img.getWidth(), img.getHeight(), true));
 
-            handler.post(this::poseProgressBar);
+            usedFrames++;
+            handler.post(setProgressBarVal(progressBar, frameCount - (frameCount - usedFrames)));
         }
 
         handler.post(this::postActivity);
@@ -227,13 +246,31 @@ public class VideoProcessor {
         bitmapToVideoEncoder.stopEncoding();
     }
 
-    private void setProgressBarMax() {
-        progressBar.setMax(frameCount);
+    private Runnable setDialogTitle(AlertDialog dialog, String message) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                dialog.setTitle(message);
+            }
+        };
     }
 
-    private void poseProgressBar() {
-        usedFrames++;
-        progressBar.setProgress(frameCount - (frameCount - usedFrames));
+    private Runnable setProgressBarMax(ProgressBar progressBar, int max) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setMax(max);
+            }
+        };
+    }
+
+    private Runnable setProgressBarVal(ProgressBar progressBar, int val) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setProgress(val);
+            }
+        };
     }
 
     private void postActivity() {

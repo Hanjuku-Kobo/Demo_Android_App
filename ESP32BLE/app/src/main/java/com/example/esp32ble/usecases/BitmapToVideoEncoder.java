@@ -32,8 +32,6 @@ public class BitmapToVideoEncoder {
     private CountDownLatch mNewFrameLatch;
 
     private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
-    private static int mWidth;
-    private static int mHeight;
     private static final int BIT_RATE = 16000000;
     private static final int FRAME_RATE = 30; // Frames per second
 
@@ -61,8 +59,6 @@ public class BitmapToVideoEncoder {
     }
 
     public void startEncoding(int width, int height, File outputFile) {
-        mWidth = width;
-        mHeight = height;
         mOutputFile = outputFile;
 
         String outputFileString;
@@ -86,7 +82,7 @@ public class BitmapToVideoEncoder {
             return;
         }
 
-        MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
+        MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, width, height);
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,
