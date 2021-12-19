@@ -9,8 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -30,12 +27,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.esp32ble.R;
 import com.example.esp32ble.activity.CameraActivity;
-import com.example.esp32ble.dialog.ProgressDialog;
 import com.example.esp32ble.ml.PoseGraphic;
 import com.example.esp32ble.usecases.VideoProcessor;
-
-import org.checkerframework.checker.units.qual.A;
-import org.opencv.videoio.VideoCapture;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -49,7 +42,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
     private final Context context;
 
     public static boolean isVisualizeZ = false;
-    public static boolean isClassification = false;
     public static String targetTitle = null;
 
     private Switch backCamera;
@@ -57,7 +49,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
     private Switch poseDetect;
     private Switch visualize3d;
-    private Switch poseClassify;
     private Switch viewUpperDegree;
     private Switch viewLowerDegree;
 
@@ -109,9 +100,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
         visualize3d = view.findViewById(R.id._3d_detect_switch);
         visualize3d.setOnCheckedChangeListener(this::onCheckedChanged);
 
-        poseClassify = view.findViewById(R.id.classify_switch);
-        poseClassify.setOnCheckedChangeListener(this::onCheckedChanged);
-
         viewUpperDegree = view.findViewById(R.id.d0_switch);
         viewUpperDegree.setOnCheckedChangeListener(this::onCheckedChanged);
 
@@ -147,7 +135,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
         backCamera.setChecked(!ShortcutButtonFragment.requestFrontCamera);
         frontCamera.setChecked(ShortcutButtonFragment.requestFrontCamera);
         poseDetect.setChecked(ShortcutButtonFragment.requestDetect);
-        poseClassify.setChecked(isClassification);
         visualize3d.setChecked(isVisualizeZ);
         viewUpperDegree.setChecked(PoseGraphic.isViewUpperDegree);
         viewLowerDegree.setChecked(PoseGraphic.isViewLowerDegree);
@@ -184,10 +171,9 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
                 break;
 
             case R.id._3d_detect_switch:
-            case R.id.classify_switch:
-                if (visualize3d.isChecked() || poseClassify.isChecked()) {
+                if (visualize3d.isChecked()) {
                     objectDetect.setEnabled(false);
-                } else if (!visualize3d.isChecked() && !poseClassify.isChecked()) {
+                } else if (!visualize3d.isChecked()) {
                     objectDetect.setEnabled(true);
                 }
 
@@ -195,7 +181,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
             case R.id.object_detect_switch:
                 visualize3d.setEnabled(!isChecked);
-                poseClassify.setEnabled(!isChecked);
 
                 break;
         }
@@ -244,7 +229,6 @@ public class PoseSettingFragment extends Fragment implements AdapterView.OnItemS
 
                 ShortcutButtonFragment.requestDetect = poseDetect.isChecked();
                 isVisualizeZ = visualize3d.isChecked();
-                isClassification = poseClassify.isChecked();
 
                 PoseGraphic.isViewUpperDegree = viewUpperDegree.isChecked();
                 PoseGraphic.isViewLowerDegree = viewLowerDegree.isChecked();

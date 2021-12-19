@@ -125,31 +125,6 @@
             android:paddingBottom="6dp">
 
             <TextView
-                android:id="@+id/classify_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_weight="1"
-                android:text="スクワットカウント"
-                android:textSize="20sp" />
-
-            <Switch
-                android:id="@+id/classify_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="20dp"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="12dp"
-            android:paddingBottom="6dp">
-
-            <TextView
                 android:id="@+id/show_detail_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

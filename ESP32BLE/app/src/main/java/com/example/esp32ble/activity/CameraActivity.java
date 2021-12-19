@@ -2,7 +2,6 @@ package com.example.esp32ble.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -38,8 +37,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -132,18 +129,16 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                 videoViewWidget = videoView.getWidth();
                 videoViewHeight = videoView.getHeight();
-
-                Log.i("TEST", "VideoView = " + videoViewWidget + ":" + videoViewHeight);
-                Log.i("TEST", "CameraView = " + cameraViewWidget + ":" + cameraViewHeight);
             }
         });
+
+        initCamera();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        initCamera();
     }
 
     @Override
@@ -241,10 +236,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 options,
                 false,
                 PoseSettingFragment.isVisualizeZ,
-                PoseSettingFragment.isVisualizeZ,    // 上に同じくZ軸関係なので同期させる
-                PoseSettingFragment.isClassification,
-                PoseSettingFragment.isClassification // これも上に同じく
-        );
+                PoseSettingFragment.isVisualizeZ); // 上に同じくZ軸関係なので同期させる
     }
 
     public void startCamera() {

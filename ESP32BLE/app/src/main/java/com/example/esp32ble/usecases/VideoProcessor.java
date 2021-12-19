@@ -247,30 +247,15 @@ public class VideoProcessor {
     }
 
     private Runnable setDialogTitle(AlertDialog dialog, String message) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                dialog.setTitle(message);
-            }
-        };
+        return () -> dialog.setTitle(message);
     }
 
     private Runnable setProgressBarMax(ProgressBar progressBar, int max) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setMax(max);
-            }
-        };
+        return () -> progressBar.setMax(max);
     }
 
     private Runnable setProgressBarVal(ProgressBar progressBar, int val) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setProgress(val);
-            }
-        };
+        return () -> progressBar.setProgress(val);
     }
 
     private void postActivity() {

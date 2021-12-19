@@ -276,7 +276,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         ShortcutButtonFragment.isObjectClassify = false;
         ShortcutButtonFragment.isStartedSave = false;
         PoseSettingFragment.isVisualizeZ = false;
-        PoseSettingFragment.isClassification = false;
         PoseSettingFragment.targetTitle = null;
         PoseSettingFragment.useImage = null;
         useVideo = null;

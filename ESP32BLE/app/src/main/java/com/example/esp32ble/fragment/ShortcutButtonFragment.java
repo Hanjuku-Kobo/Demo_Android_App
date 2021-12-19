@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -13,6 +14,9 @@ import com.example.esp32ble.R;
 import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.dialog.GetPermissionDialog;
 import com.example.esp32ble.ml.PoseDataProcess;
+import com.example.esp32ble.usecases.InstructionsSave;
+
+import static com.example.esp32ble.fragment.PoseSettingFragment.useVideo;
 
 public class ShortcutButtonFragment extends Fragment implements View.OnClickListener {
 
@@ -53,7 +57,7 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
 
         saveButton = view.findViewById(R.id.save_button);
         saveButton.setOnClickListener(this);
-        if (!requestDetect) {
+        if (!requestDetect && useVideo == null) {
             saveButton.setEnabled(false);
         } else if (isStartedSave) {
             saveButton.setImageResource(R.drawable.ic_baseline_stop_24);
@@ -114,21 +118,29 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
                 break;
 
             case R.id.save_button:
-                if (!isStartedSave) {
-                    // 開始
-                    isStartedSave = true;
+                // リアルタイム検出
+                if (useVideo == null) {
+                    if (!isStartedSave) {
+                        // 開始
+                        isStartedSave = true;
 
-                    clearUsedSaveMaps();
+                        clearUsedSaveMaps();
 
-                    saveButton.setImageResource(R.drawable.ic_baseline_stop_24);
+                        saveButton.setImageResource(R.drawable.ic_baseline_stop_24);
 
-                    new PoseDataProcess().setStartTime();
+                        new PoseDataProcess().setStartTime();
 
-                    activity.startCountUpTimer();
+                        activity.startCountUpTimer();
+                    }
+                    else {
+                        // 停止
+                        saveStop();
+                    }
                 }
-                else {
-                    // 停止
-                    saveStop();
+                // 動画使用時
+                else  {
+                    GetPermissionDialog getPermissionDialog = new GetPermissionDialog();
+                    getPermissionDialog.show(activity.getSupportFragmentManager(), "save");
                 }
 
                 break;

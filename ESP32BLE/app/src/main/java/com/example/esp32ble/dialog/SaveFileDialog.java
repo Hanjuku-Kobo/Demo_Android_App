@@ -25,6 +25,7 @@ import com.example.esp32ble.R;
 import java.util.ArrayList;
 
 import static com.example.esp32ble.activity.CameraActivity.poseContext;
+import static com.example.esp32ble.fragment.PoseSettingFragment.useVideo;
 
 public class SaveFileDialog extends DialogFragment implements DialogInterface.OnClickListener, View.OnClickListener, TextWatcher {
 
@@ -59,6 +60,11 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
         EditText fileName = view.findViewById(R.id.edit_file_name);
         fileName.addTextChangedListener(this);
 
+        if (useVideo != null) {
+            TextView textView = view.findViewById(R.id.extension_text);
+            textView.setText(".mp4");
+        }
+
         submit = view.findViewById(R.id.dialog_submit);
         submit.setOnClickListener(this);
         submit.setEnabled(false);
@@ -88,6 +94,9 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
 
             bleTest.setSaveButton(state);
         }
+        else if (useVideo != null) {
+            is.moveFiles("/storage/emulated/0/DCIM/Camera/App/" + name + ".mp4");
+        }
         else {
             is.saveCoordinate(name + "_point.csv");
             is.saveJointAngles(name + "_angle.csv");
@@ -105,6 +114,12 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
     @Override // 文字が入力され、確定された時
     public void afterTextChanged(Editable s) {
         String inputText = s.toString();
+
+        if (useVideo != null) {
+            name = inputText;
+            submit.setEnabled(true);
+            return;
+        }
 
         csvFiles = is.readCSVFiles();
         int i = 0;

@@ -10,11 +10,16 @@ import com.example.esp32ble.ml.PoseDataProcess;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -249,5 +254,49 @@ public class InstructionsSave {
         PoseDataProcess.timeData.clear();
         PoseDataProcess.keyCount = 0;
         PoseDataProcess.startTime = 0;
+    }
+
+    // ファイルをコピーして指定の場所に移動
+    public void moveFiles(String outFile) {
+        boolean result = false;
+
+        // ディレクトリーがなかったら作成
+        String directoryPath = "/storage/emulated/0/DCIM/Camera/App";
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            File createDirectory = new File(directoryPath);
+            createDirectory.mkdirs();
+        }
+
+        File inputFile = new File("/storage/emulated/0/Android/data/com.example.esp32ble/result.mp4");
+        File outputFile = new File(outFile);
+
+        FileInputStream inStream;
+        FileOutputStream outStream;
+
+        try {
+            inStream = new FileInputStream(inputFile);
+            outStream = new FileOutputStream(outputFile);
+
+            FileChannel inChannel = inStream.getChannel();
+            FileChannel outChannel = outStream.getChannel();
+
+            long pos = 0;
+            while (pos < inChannel.size()) {
+                pos += inChannel.transferTo(pos, inChannel.size(), outChannel);
+            }
+
+            inStream.close();
+            outStream.close();
+
+            result = true;
+            Toast.makeText(context, "保存できました", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (!result) {
+            Toast.makeText(context, "保存できませんでした", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -26,7 +26,7 @@
             android:inputType="none|textNoSuggestions" />
 
         <TextView
-            android:id="@+id/object_detect_text"
+            android:id="@+id/extension_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text=".csv"
