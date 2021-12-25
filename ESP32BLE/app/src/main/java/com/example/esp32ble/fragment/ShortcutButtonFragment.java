@@ -1,5 +1,7 @@
 package com.example.esp32ble.fragment;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.esp32ble.R;
 import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.dialog.GetPermissionDialog;
+import com.example.esp32ble.dialog.VideoSaveDialog;
 import com.example.esp32ble.ml.PoseDataProcess;
 import com.example.esp32ble.usecases.InstructionsSave;
 
@@ -139,8 +142,8 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
                 }
                 // 動画使用時
                 else  {
-                    GetPermissionDialog getPermissionDialog = new GetPermissionDialog();
-                    getPermissionDialog.show(activity.getSupportFragmentManager(), "save");
+                    VideoSaveDialog videoSaveDialog = new VideoSaveDialog();
+                    videoSaveDialog.show(getFragmentManager(), "save");
                 }
 
                 break;

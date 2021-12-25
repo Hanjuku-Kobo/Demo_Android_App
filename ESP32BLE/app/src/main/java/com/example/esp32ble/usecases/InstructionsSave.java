@@ -260,14 +260,6 @@ public class InstructionsSave {
     public void moveFiles(String outFile) {
         boolean result = false;
 
-        // ディレクトリーがなかったら作成
-        String directoryPath = "/storage/emulated/0/DCIM/Camera/App";
-        File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            File createDirectory = new File(directoryPath);
-            createDirectory.mkdirs();
-        }
-
         File inputFile = new File("/storage/emulated/0/Android/data/com.example.esp32ble/result.mp4");
         File outputFile = new File(outFile);
 
