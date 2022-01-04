@@ -1,0 +1,1 @@
+E:\AndroidStudioProjects\ESP32BLE\OpenCV\build\intermediates\cxx\Debug\6c6u144h\obj\armeabi-v7a

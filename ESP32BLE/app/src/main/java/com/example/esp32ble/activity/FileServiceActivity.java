@@ -6,16 +6,13 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,10 +20,10 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.esp32ble.R;
 import com.example.esp32ble.fragment.ShowPopupMenu;
-import com.example.esp32ble.usecases.CreateFileItemList;
-import com.example.esp32ble.usecases.CreateFileItemList.Item;
-import com.example.esp32ble.usecases.CreateFileItemList.CustomAdapter;
-import com.example.esp32ble.usecases.CreateFileItemList.CustomAdapterCheckbox;
+import com.example.esp32ble.usecases.CreateItemList;
+import com.example.esp32ble.usecases.CreateItemList.Item;
+import com.example.esp32ble.usecases.CreateItemList.CustomAdapter;
+import com.example.esp32ble.usecases.CreateItemList.CustomAdapterCheckbox;
 import com.example.esp32ble.usecases.InstructionsSave;
 
 import java.util.ArrayList;
@@ -100,7 +97,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
 
     private void createList(ArrayList<String> inputs) {
         // リストを生成するクラスを呼び出す
-        CreateFileItemList createFileItemList = new CreateFileItemList();
+        CreateItemList createFileItemList = new CreateItemList();
 
         ArrayList<Item> itemList = new ArrayList<>();
 
@@ -111,7 +108,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
             // ファイルをItemとしてListに追加
             for (int i = 0; i < inputs.size(); i++) {
                 Item item = new Item();
-                item.setFileItem(inputs.get(i));
+                item.setItem(inputs.get(i));
                 itemList.add(item);
             }
 

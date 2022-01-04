@@ -19,8 +19,8 @@ public class RequestConnectDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle("まずは、デバイスと接続しましょう");
-        builder.setPositiveButton("はい", this::onClick);
-        builder.setNegativeButton("いいえ", this::onClick);
+        builder.setPositiveButton("OK", this::onClick);
+        builder.setNegativeButton("あとで", this::onClick);
 
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);

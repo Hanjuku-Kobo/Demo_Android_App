@@ -12,9 +12,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.esp32ble.activity.BleTestActivity;
-import com.example.esp32ble.usecases.CreateFileItemList;
-import com.example.esp32ble.usecases.CreateFileItemList.Item;
-import com.example.esp32ble.usecases.CreateFileItemList.CustomAdapter;
+import com.example.esp32ble.usecases.CreateItemList;
+import com.example.esp32ble.usecases.CreateItemList.Item;
+import com.example.esp32ble.usecases.CreateItemList.CustomAdapter;
 import com.example.esp32ble.usecases.InstructionsSave;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class ReadFileDialog extends DialogFragment implements DialogInterface.On
         csvFiles = is.readCSVFiles();
 
         // リストを生成するクラスを呼び出す
-        new CreateFileItemList();
+        new CreateItemList();
 
         ArrayList<Item> itemList = new ArrayList<>();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -49,7 +49,7 @@ public class ReadFileDialog extends DialogFragment implements DialogInterface.On
             // ファイルをItemとしてListに追加
             for (int i = 0; i < csvFiles.size(); i++) {
                 Item item = new Item();
-                item.setFileItem(csvFiles.get(i));
+                item.setItem(csvFiles.get(i));
                 itemList.add(item);
             }
 

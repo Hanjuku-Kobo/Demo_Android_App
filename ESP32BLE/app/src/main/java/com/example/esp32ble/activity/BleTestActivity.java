@@ -21,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.esp32ble.R;
-import com.example.esp32ble.dialog.CheckPairSettingDialog;
 import com.example.esp32ble.dialog.ReadFileDialog;
 import com.example.esp32ble.dialog.SaveFileDialog;
 import com.example.esp32ble.fragment.ShowPopupMenu;
@@ -190,8 +189,7 @@ public class BleTestActivity extends AppCompatActivity {
     // ここからBluetoothの接続処理
     public void needsCallDialog() {
         if (!connectState) {
-            CheckPairSettingDialog dialog = new CheckPairSettingDialog();
-            dialog.show(getSupportFragmentManager(), "main");
+            bleProcessor.discoverDevice(this, bluetoothAdapter);
         }
         else {
             String NOW_DISCONNECT = "接続を開始";
@@ -216,11 +214,6 @@ public class BleTestActivity extends AppCompatActivity {
                 }
             });
         }
-    }
-
-    // DialogからのCallback
-    public void positiveCallback() {
-        bleProcessor.scanPairedDevice(this, bluetoothAdapter);
     }
 
     public void startConnect() {

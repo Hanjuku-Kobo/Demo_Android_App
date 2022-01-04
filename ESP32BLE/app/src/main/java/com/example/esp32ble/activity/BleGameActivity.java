@@ -154,7 +154,7 @@ public class BleGameActivity extends AppCompatActivity implements View.OnClickLi
 
     public void onConnect(){
         if(!isAlreadyConnect){
-            bleProcessor.scanPairedDevice(this, mBtAdapter);
+            bleProcessor.discoverDevice(this, mBtAdapter);
         }
     }
 

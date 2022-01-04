@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final String[] PERMISSIONS = {
             Manifest.permission.BLUETOOTH,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private final int REQUEST_PERMISSION_CODE = 101;
 
@@ -88,15 +90,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /* パーミッション許可 */
-
+    // パーミッション許可
     private boolean isGranted() {
-        //許可されていないパーミッションがある場合はfalseを返す
+        // 許可されていないパーミッションがある場合はfalseを返す
 
         for (String permission : PERMISSIONS) {
-            if (!(ContextCompat.checkSelfPermission(
-                    getBaseContext(),
-                    permission) == PackageManager.PERMISSION_GRANTED)) {
+            if (!(ContextCompat.checkSelfPermission(getBaseContext(), permission)
+                    == PackageManager.PERMISSION_GRANTED)) {
                 return false;
             }
         }

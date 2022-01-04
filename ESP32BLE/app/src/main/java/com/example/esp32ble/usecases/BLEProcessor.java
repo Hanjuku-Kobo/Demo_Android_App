@@ -1,5 +1,8 @@
 package com.example.esp32ble.usecases;
 
+import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
+import static android.bluetooth.BluetoothDevice.ACTION_PAIRING_REQUEST;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -8,7 +11,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,11 +22,8 @@ import com.example.esp32ble.activity.BleTestActivity;
 import com.example.esp32ble.dialog.DeviceListDialog;
 import com.example.esp32ble.activity.BleGameActivity;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 
 public class BLEProcessor {
@@ -33,6 +36,10 @@ public class BLEProcessor {
     private BleTestActivity bleTest;
     private BleGameActivity bleGame;
     private LineChartController chartController;
+
+    private DeviceListDialog deviceListDialog;
+
+    private ArrayList<BluetoothDevice> devices = new ArrayList<>();
 
     private Context context;
 
@@ -50,7 +57,6 @@ public class BLEProcessor {
     public BLEProcessor(BleGameActivity bleGame) { this.bleGame = bleGame; }
 
     // Bluetoothの検出&接続
-
     public BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
         final String TAG = "TEST";
 
@@ -171,26 +177,73 @@ public class BLEProcessor {
         }
     };
 
-    // ペアリングされたデバイスを取得
-    public void scanPairedDevice(Context context,BluetoothAdapter adapter){
-        Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
-        ArrayList<BluetoothDevice> devices = new ArrayList<>(pairedDevices);
-
+    // Bluetoothデバイス検出
+    public void discoverDevice(Context context, BluetoothAdapter adapter) {
         this.context = context;
         bluetoothAdapter = adapter;
 
-        if (pairedDevices.size() > 0) {
-            if (pairedDevices.size() == 1){
-                connectDevice(devices.get(0));
-            }
-            else{
-                DeviceListDialog dialog = new DeviceListDialog(this, context, devices);
-                dialog.show(bleTest.getSupportFragmentManager(), "deviceList");
+        IntentFilter filter = new IntentFilter(ACTION_FOUND);
+        context.registerReceiver(receiver, filter);
+        IntentFilter filter2 = new IntentFilter(ACTION_PAIRING_REQUEST);
+        context.registerReceiver(receiver, filter2);
+
+        if (bluetoothAdapter.isDiscovering()) {
+            // 検索中の場合はキャンセルする
+            bluetoothAdapter.cancelDiscovery();
+        }
+
+        if(bluetoothAdapter.startDiscovery()) {
+            // 検出を行う
+            deviceListDialog = new DeviceListDialog(this, context, devices, "デバイスを選択");
+            if (bleTest != null) deviceListDialog.show(bleTest.getSupportFragmentManager(), "deviceList");
+            else if (bleGame != null) deviceListDialog.show(bleGame.getSupportFragmentManager(), "deviceList");
+        } else {
+            Toast.makeText(context, "エラー\n権限設定を確認してください", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            BluetoothDevice device;
+
+            switch (action) {
+                case ACTION_FOUND:
+                    Log.d("Processor", "ACTION_FOUND");
+                    // デバイスが見つかった場合、Intent から BluetoothDeviceを取り出す
+                    device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    checkDeviceDuplicate(device);
+
+                    break;
+                case ACTION_PAIRING_REQUEST:
+                    Log.d("Processor", "ACTION_PAIRING_REQUEST");
+                    device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    checkDeviceDuplicate(device);
+
+                    try {
+                        byte[] pin = new byte[6];
+                        for (int i = 0; i < 6; i++) {
+                            pin[i] = Integer.decode("0x" + device.getAddress().split(":")[5 - i]).byteValue();
+                        }
+                        device.setPin(pin);
+                        device.getClass().getMethod("setPairingConfirmation", boolean.class).invoke(device, true);
+                    } catch (Exception ignored) { }
+
+                    break;
             }
         }
-        else{
-            Toast.makeText(context, "ペアリングされたデバイスが存在しません", Toast.LENGTH_SHORT).show();
+    };
+
+    private void checkDeviceDuplicate(BluetoothDevice device) {
+        // 重複しているか
+        for (BluetoothDevice device2 : devices) {
+            if (device.getAddress().equals(device2.getAddress())) return;
         }
+        // 重複していなかったら
+        devices.add(device);
+        deviceListDialog.createList(devices);
+        Log.d("Processor", String.valueOf(devices.size()));
     }
 
     // gatt serverへの接続処理
