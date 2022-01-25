@@ -3,7 +3,6 @@ package com.example.esp32ble.activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,31 +15,23 @@ import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.esp32ble.dialog.ConfirmDialog;
-import com.example.esp32ble.dialog.ProgressDialog;
 import com.example.esp32ble.R;
 import com.example.esp32ble.dialog.RequestConnectDialog;
-import com.example.esp32ble.dialog.ResultDialog;
 import com.example.esp32ble.fragment.GamePageFragment;
 import com.example.esp32ble.fragment.SelectExtensionFragment;
 import com.example.esp32ble.fragment.SelectGameFragment;
 import com.example.esp32ble.fragment.ShowPopupMenu;
 import com.example.esp32ble.usecases.GetVoltageRegularly;
-import com.example.esp32ble.usecases.SoundPlayer;
-import com.example.esp32ble.usecases.BLEProcessor;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import com.example.esp32ble.usecases.BtProcessor;
 
 public class BleGameActivity extends AppCompatActivity implements View.OnClickListener {
 
     public int pushedCount;
     private int oldPushedCount;
 
-    private BLEProcessor bleProcessor;
+    private BtProcessor btProcessor;
     private GetVoltageRegularly getRegularly;
 
     private BluetoothAdapter mBtAdapter;
@@ -67,7 +58,7 @@ public class BleGameActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ble_game);
 
-        Toolbar toolbar = findViewById(R.id.ble_game_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
 
         selectGameFragment = new SelectGameFragment();
@@ -82,8 +73,8 @@ public class BleGameActivity extends AppCompatActivity implements View.OnClickLi
         }
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        bleProcessor = new BLEProcessor(this);
-        getRegularly = new GetVoltageRegularly(bleProcessor);
+        btProcessor = new BtProcessor(this);
+        getRegularly = new GetVoltageRegularly(btProcessor);
 
         reconnectButton = findViewById(R.id.reconnect_button);
         reconnectButton.setOnClickListener(this);
@@ -112,7 +103,7 @@ public class BleGameActivity extends AppCompatActivity implements View.OnClickLi
         // characteristicsをクリア
         onWrite("null");
 
-        bleProcessor.clearBleGatt();
+        btProcessor.clearBleGatt();
 
         gameFragment.callMultiUseData = false;
         gameFragment.callPostureData = false;
@@ -154,12 +145,12 @@ public class BleGameActivity extends AppCompatActivity implements View.OnClickLi
 
     public void onConnect(){
         if(!isAlreadyConnect){
-            bleProcessor.discoverDevice(this, mBtAdapter);
+            btProcessor.discoverDevice(this, mBtAdapter);
         }
     }
 
     public void onWrite(String message) {
-        bleProcessor.onWrite(message);
+        btProcessor.onWrite(message);
     }
 
     public void controlBleData(float x, float y, float z) {

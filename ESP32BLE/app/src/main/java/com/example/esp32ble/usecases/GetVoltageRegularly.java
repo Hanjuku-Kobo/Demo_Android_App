@@ -4,13 +4,13 @@ import android.os.Handler;
 
 public class GetVoltageRegularly {
 
-    private final BLEProcessor bluetoothProcessor;
+    private final BtProcessor bluetoothProcessor;
 
     private final Handler handler;
 
     private final String GET_VOLTAGE = "battery";
 
-    public GetVoltageRegularly(BLEProcessor processor) {
+    public GetVoltageRegularly(BtProcessor processor) {
         bluetoothProcessor = processor;
 
         handler = new Handler();

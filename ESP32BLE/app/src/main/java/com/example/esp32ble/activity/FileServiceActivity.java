@@ -54,7 +54,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
         is = new InstructionsSave(context);
 
         // UI関連の初期化
-        Toolbar toolbar = findViewById(R.id.file_service_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar4);
         setSupportActionBar(toolbar);
 
         listView = findViewById(R.id.file_list_view);
@@ -81,7 +81,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
         super.onResume();
 
         // ファイルを読み込み
-        createList(is.readCSVFiles());
+        createList(is.readCSVFiles(".csv"));
     }
 
     // 画面サイズが変更されるとき
@@ -230,7 +230,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
     }
 
     private ArrayList<String> squeezeFile() {
-        ArrayList<String> csvFiles = is.readCSVFiles();
+        ArrayList<String> csvFiles = is.readCSVFiles(".csv");
         ArrayList<String> result = new ArrayList<>();
         ArrayList<Integer> matchNumber = new ArrayList<>();
 

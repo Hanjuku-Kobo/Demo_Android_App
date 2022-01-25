@@ -17,4 +17,7 @@
     <item android:id="@+id/ble_test_menu"
           android:title="Bluetoothテスト" />
 
+    <item android:id="@+id/gait_analysis_menu"
+        android:title="歩行分析" />
+
 </menu>

@@ -142,7 +142,7 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
                 }
                 // 動画使用時
                 else  {
-                    VideoSaveDialog videoSaveDialog = new VideoSaveDialog();
+                    VideoSaveDialog videoSaveDialog = new VideoSaveDialog(getContext());
                     videoSaveDialog.show(getFragmentManager(), "save");
                 }
 

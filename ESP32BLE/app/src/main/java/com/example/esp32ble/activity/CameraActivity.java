@@ -57,6 +57,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private VisionImageProcessor imageProcessor;
     public static GraphicOverlay graphicOverlay;
 
+    private Context context;
+
     private ImageButton openSetting;
 
     private TextView timerText;
@@ -68,20 +70,18 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private final Handler handler = new Handler();
     private long startTime = 0;
 
-    public static Context poseContext ;
-
     public static int cameraViewWidget;
     public static int cameraViewHeight;
 
     public static int videoViewWidget;
     public static int videoViewHeight;
 
-    public static String[] getLandmarks() {
-        return poseContext.getResources().getStringArray(R.array.landmarks);
+    // 変数化するとエラー起きる
+    public static String[] getLandmarks(Context context) {
+        return context.getResources().getStringArray(R.array.landmarks);
     }
-
-    public static String[] getJointAngles() {
-        return poseContext.getResources().getStringArray(R.array.jointAngles);
+    public static String[] getJointAngles(Context context) {
+        return context.getResources().getStringArray(R.array.jointAngles);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_use_camera);
 
         // UIの初期化
-        Toolbar toolbar = findViewById(R.id.pose_det_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar6);
         setSupportActionBar(toolbar);
 
         imageView = findViewById(R.id.image_view);
@@ -106,11 +106,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         timerText = findViewById(R.id.camera_timer_count_text);
 
+        context = this;
+
         //fragmentの設定
         fragmentManager = getSupportFragmentManager();
         shortcutButtonFragment = new ShortcutButtonFragment(this);
-
-        poseContext = this;
 
         if (allPermissionsGranted()) {
             startCamera();
@@ -178,7 +178,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                     }
 
                     else {
-                        Toast.makeText(poseContext, "カメラを使用できません", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "カメラを使用できません", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -200,7 +200,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.backButton:
                 stopCamera();
 
-                Intent intent = new Intent(this, MainActivity.class);
+                Intent intent = new Intent(context, MainActivity.class);
                 startActivity(intent);
 
                 break;
@@ -232,7 +232,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         imageProcessor = new PoseDetectorProcessor(
-                poseContext,
+                context,
                 options,
                 false,
                 PoseSettingFragment.isVisualizeZ,
@@ -245,7 +245,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         videoView.setVisibility(View.INVISIBLE);
 
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture
-                = ProcessCameraProvider.getInstance(this);
+                = ProcessCameraProvider.getInstance(context);
 
         cameraProviderFuture.addListener(new Runnable() {
             @Override
@@ -273,13 +273,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                     // Bind use cases to camera
                     cameraProvider.bindToLifecycle(
-                            (LifecycleOwner)poseContext, cameraSelector, preview, imageAnalysis);
+                            (LifecycleOwner)context, cameraSelector, preview, imageAnalysis);
 
                 } catch (Exception e) {
                     Log.e("CameraXBasic", "Use case binding failed", e);
                 }
             }
-        }, ContextCompat.getMainExecutor(this));
+        }, ContextCompat.getMainExecutor(context));
     }
 
     private class PoseAnalyzer implements ImageAnalysis.Analyzer {
@@ -310,7 +310,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 } catch (MlKitException e) {
                     Log.e("TAG", "Failed to process image. Error: " + e.getLocalizedMessage());
 
-                    Toast.makeText(poseContext, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         }

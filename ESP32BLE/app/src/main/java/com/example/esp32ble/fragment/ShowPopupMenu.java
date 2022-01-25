@@ -14,6 +14,7 @@ import com.example.esp32ble.activity.BleTestActivity;
 import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.activity.FileServiceActivity;
 import com.example.esp32ble.activity.BleGameActivity;
+import com.example.esp32ble.activity.GaitAnalysisActivity;
 import com.example.esp32ble.activity.MainActivity;
 
 public class ShowPopupMenu {
@@ -61,42 +62,54 @@ public class ShowPopupMenu {
         String POSE_DET_ACTIVITY = "com.example.esp32ble.activity.PoseDetectorActivity";
         String FILE_SERVICE_ACTIVITY = "com.example.esp32ble.activity.FileServiceActivity";
         String BLE_TEST_ACTIVITY = "com.example.esp32ble.activity.BleTestActivity";
+        String GAIT_ANALYSIS_ACTIVITY = "com.example.esp32ble.activity.GaitAnalysisActivity";
 
         switch (item.getItemId()) {
             case R.id.home_menu:
                 if (!calledToClassName.equals(MAIN_ACTIVITY)) {
-                    onClickMainActivity();
+                    Intent intent = new Intent(context, MainActivity.class);
+                    context.startActivity(intent);
                     return true;
                 }
                 return false;
 
             case R.id.ble_game_menu:
                 if (!calledToClassName.equals(GAME_ACTIVITY)) {
-                    onClickGameActivity();
+                    Intent intent = new Intent(context, BleGameActivity.class);
+                    context.startActivity(intent);
                     return true;
                 }
                 return false;
 
             case R.id.ble_test_menu:
                 if (!calledToClassName.equals(BLE_TEST_ACTIVITY)) {
-                    onClickBleTestActivity();
+                    Intent intent = new Intent(context, BleTestActivity.class);
+                    context.startActivity(intent);
                     return true;
                 }
                 return false;
 
             case R.id.pose_det_menu:
                 if (!calledToClassName.equals(POSE_DET_ACTIVITY)) {
-                    onClickPoseDetectorActivity();
+                    Intent intent = new Intent(context, CameraActivity.class);
+                    context.startActivity(intent);
                     return true;
                 }
                 return false;
 
             case R.id.file_service_menu:
                 if (!calledToClassName.equals(FILE_SERVICE_ACTIVITY)) {
-                    onClickFileServiceActivity();
+                    Intent intent = new Intent(context, FileServiceActivity.class);
+                    context.startActivity(intent);
                     return true;
                 }
                 return false;
+
+            case R.id.gait_analysis_menu:
+                if (!calledToClassName.equals(GAIT_ANALYSIS_ACTIVITY)) {
+                    Intent intent = new Intent(context, GaitAnalysisActivity.class);
+                    context.startActivity(intent);
+                }
 
             default:
                 return false;
@@ -111,30 +124,5 @@ public class ShowPopupMenu {
             default:
                 return false;
         }
-    }
-
-    private void onClickMainActivity() {
-        Intent intent = new Intent(context, MainActivity.class);
-        context.startActivity(intent);
-    }
-
-    private void onClickGameActivity() {
-        Intent intent = new Intent(context, BleGameActivity.class);
-        context.startActivity(intent);
-    }
-
-    private void onClickPoseDetectorActivity() {
-        Intent intent = new Intent(context, CameraActivity.class);
-        context.startActivity(intent);
-    }
-
-    private void onClickFileServiceActivity() {
-        Intent intent = new Intent(context, FileServiceActivity.class);
-        context.startActivity(intent);
-    }
-
-    private void onClickBleTestActivity() {
-        Intent intent = new Intent(context, BleTestActivity.class);
-        context.startActivity(intent);
     }
 }

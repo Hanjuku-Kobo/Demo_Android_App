@@ -1,6 +1,7 @@
 package com.example.esp32ble.dialog;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -13,6 +14,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class VideoSaveDialog extends DialogFragment implements DialogInterface.OnClickListener {
+
+    private final Context context;
+
+    public VideoSaveDialog(Context context) {
+        this.context = context;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -32,10 +39,15 @@ public class VideoSaveDialog extends DialogFragment implements DialogInterface.O
             Date nowDate = new Date();
             // 表示形式を指定
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            String fileName = sdf.format(nowDate);
 
-            InstructionsSave instructionsSave = new InstructionsSave();
+            InstructionsSave instructionsSave = new InstructionsSave(context);
             instructionsSave.moveFiles(
-                    "/storage/emulated/0/DCIM/Camera/" + sdf.format(nowDate) + ".mp4");
+                    "/storage/emulated/0/DCIM/Camera/" + fileName + ".mp4");
+
+            instructionsSave.saveCoordinate(fileName + "_point.csv");
+            instructionsSave.saveJointAngles(fileName + "_angle.csv");
+            instructionsSave.saveForAnalysis(fileName + "_analysis.csv");
         }
     }
 }

@@ -16,10 +16,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ble_test_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar3" />
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/ble_test_toolbar"
+        android:id="@+id/toolbar3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#CFCFCF"
@@ -30,8 +30,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="scene_menu"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:onClick="showPopup"
-            android:src="@drawable/ic_baseline_list_24" />
+            android:src="@drawable/ic_baseline_list_24"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="11dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -54,7 +58,7 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/lineChert1"
         app:layout_constraintEnd_toEndOf="@+id/lineChert1"
-        app:layout_constraintTop_toBottomOf="@+id/ble_test_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar3" />
 
     <Button
         android:id="@+id/save"
@@ -67,7 +71,7 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/lineChert1"
         app:layout_constraintStart_toStartOf="@+id/lineChert1"
-        app:layout_constraintTop_toBottomOf="@+id/ble_test_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar3" />
 
     <Button
         android:id="@+id/readCSVButton"

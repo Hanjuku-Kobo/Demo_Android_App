@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // UI関連の初期化
-        Toolbar toolbar = findViewById(R.id.ble_test_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
 
         Button bleGame = findViewById(R.id.button1);
@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
 
         Button bleTest = findViewById(R.id.button4);
         bleTest.setOnClickListener(this::onClick);
+
+        Button gaitAnalysis = findViewById(R.id.button5);
+        gaitAnalysis.setOnClickListener(this::onClick);
     }
 
     // 画面にlayoutが表示される前に呼ばれる
@@ -130,25 +133,26 @@ public class MainActivity extends AppCompatActivity {
             case R.id.button1:
                 Intent intent1 = new Intent(this, BleGameActivity.class);
                 startActivity(intent1);
-
                 break;
 
             case R.id.button2:
                 Intent intent2 = new Intent(this, CameraActivity.class);
                 startActivity(intent2);
-
                 break;
 
             case R.id.button3:
                 Intent intent3 = new Intent(this, FileServiceActivity.class);
                 startActivity(intent3);
-
                 break;
 
             case R.id.button4:
                 Intent intent4 = new Intent(this, BleTestActivity.class);
                 startActivity(intent4);
+                break;
 
+            case R.id.button5:
+                Intent intent5 = new Intent(this, GaitAnalysisActivity.class);
+                startActivity(intent5);
                 break;
         }
     }

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.esp32ble.activity.BleTestActivity;
 import com.example.esp32ble.activity.MainActivity;
+import com.example.esp32ble.tab.TabFragment1;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -19,22 +20,24 @@ import java.util.ArrayList;
 
 public class LineChartController {
 
-    private final BleTestActivity bleTest;
+    private BleTestActivity bleTest;
 
     private LineChart chart;
 
     private ArrayList<Entry> xLine;
     private ArrayList<Entry> yLine;
     private ArrayList<Entry> zLine;
+
     private int keyCount;
 
     public LineChartController(BleTestActivity bleTest) {
         this.bleTest = bleTest;
     }
 
-    // HandlerはViewに対する処理をするために必要
+    public LineChartController() { }
 
-    public LineChart initChart(LineChart chart) {
+    // HandlerはViewに対する処理をするために必要
+    public LineChart initChart(LineChart chart, String chartName) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -44,18 +47,26 @@ public class LineChartController {
                 chart.getAxisLeft().setEnabled(true);           //左側のメモリ
                 chart.getAxisRight().setEnabled(true);           //右側のメモリ
 
-                if (bleTest.getUseExtension().equals("acceleration")) {
-                    chart.getDescription().setText("加速度センサー");   //グラフ説明テキスト
+                if (bleTest != null) {
+                    if (bleTest.getUseExtension().equals("acceleration")) {
+                        chart.getDescription().setText("加速度センサー");   //グラフ説明テキスト
 
-                    chart.getAxisLeft().setAxisMinimum(-35);
-                    chart.getAxisLeft().setAxisMaximum(35);
-                    chart.getAxisRight().setAxisMinimum(-35);
-                    chart.getAxisRight().setAxisMaximum(35);
-                } else if (bleTest.getUseExtension().equals("pressure")) {
-                    chart.getDescription().setText("圧力センサー");
+                        chart.getAxisLeft().setAxisMinimum(-35);
+                        chart.getAxisLeft().setAxisMaximum(35);
+                        chart.getAxisRight().setAxisMinimum(-35);
+                        chart.getAxisRight().setAxisMaximum(35);
+                    } else if (bleTest.getUseExtension().equals("pressure")) {
+                        chart.getDescription().setText("圧力センサー");
+
+                        chart.getAxisLeft().setAxisMinimum(0);
+                        chart.getAxisRight().setAxisMinimum(0);
+                    }
+                } else {
+                    // 歩行分析用
+                    chart.getDescription().setText(chartName);
 
                     chart.getAxisLeft().setAxisMinimum(0);
-                    chart.getAxisRight().setAxisMinimum(0);
+                    chart.getAxisLeft().setAxisMaximum(180);
                 }
 
                 chart.setTouchEnabled(true);
@@ -76,20 +87,16 @@ public class LineChartController {
                 LineData data = new LineData();
                 data.setValueTextColor(Color.BLACK);
                 chart.setData(data);
-
-
             }
         });
-
         this.chart = chart;
 
         return chart;
     }
 
-
-    public void addDataAsync(float xData, float yData, float zData) {
+    public void addAccelDataAsync(float xData, float yData, float zData) {
         if (chart == null) {
-            chart = initChart(bleTest.getLineChart());
+            chart = initChart(bleTest.getLineChart(), null);
         }
 
         if (xLine == null) { reset(); }
@@ -130,7 +137,6 @@ public class LineChartController {
 
                 dataSets.add(ySet);
 
-
                 zLine.add(new Entry(keyCount, zData));
 
                 LineDataSet zSet = new LineDataSet(zLine, "Z軸");
@@ -145,7 +151,6 @@ public class LineChartController {
                 zSet.setDrawValues(false);
 
                 dataSets.add(zSet);
-
 
                 LineData data = new LineData(dataSets);
 
@@ -166,6 +171,39 @@ public class LineChartController {
 
                 //main.drawLineChart(data);
                 bleTest.setAccelData(xData,yData,zData);
+            }
+        });
+    }
+
+    public void addChartForAnalysis(ArrayList<Float> timer, ArrayList<Integer> data) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                ArrayList<Entry> line = new ArrayList<>();
+
+                for (int i=0; i<data.size(); i++) {
+                    //Entry型でListを作成し(x,y)=(i,data)で座標を格納
+                    line.add(new Entry(timer.get(i), data.get(i)));
+                }
+
+                //LineDataSet
+                LineDataSet set = new LineDataSet(line, "data");
+                set.setColor(Color.RED);
+                set.setDrawCircles(false);
+                set.setLineWidth(1.5f);              //線の太さ
+                set.setMode(LineDataSet.Mode.CUBIC_BEZIER);// 折れ線グラフの表示方法
+                set.setDrawValues(false);            // 折れ線グラフの値を非表示
+
+                dataSets.add(set);
+
+                LineData lineData = new LineData(dataSets);
+
+                //LineChartにLineData格納
+                chart.setData(lineData);
+
+                //LineChartを更新
+                chart.notifyDataSetChanged();
             }
         });
     }

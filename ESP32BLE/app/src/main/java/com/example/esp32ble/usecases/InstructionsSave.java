@@ -2,28 +2,27 @@ package com.example.esp32ble.usecases;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.esp32ble.activity.BleTestActivity;
 import com.example.esp32ble.activity.CameraActivity;
+import com.example.esp32ble.activity.GaitAnalysisActivity;
 import com.example.esp32ble.ml.PoseDataProcess;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.StringTokenizer;
-
-import static com.example.esp32ble.activity.CameraActivity.poseContext;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class InstructionsSave {
 
@@ -34,12 +33,9 @@ public class InstructionsSave {
     private OutputStreamWriter osw;
     private final String directoryType;
 
-    private Context context = poseContext;
+    private final Context context;
 
-    // 保存処理で使用
-    public InstructionsSave() {
-        directoryType = Environment.DIRECTORY_DOCUMENTS;
-    }
+    private Queue<Float> forAnalysis = new ConcurrentLinkedDeque<>();
 
     // 削除処理で使用
     public InstructionsSave(Context context) {
@@ -70,9 +66,9 @@ public class InstructionsSave {
         }
     }
 
-    public ArrayList<String> readCSVFiles() {
+    public ArrayList<String> readCSVFiles(String keyWord) {
         File[] files;
-        ArrayList<String> csvFiles = new ArrayList<>();
+        ArrayList<String> selectedFiles = new ArrayList<>();
 
         path = context.getExternalFilesDir(directoryType).toString();
         files = new File(path).listFiles();
@@ -80,14 +76,14 @@ public class InstructionsSave {
         if (files == null) return null;
 
         for (File file : files) {
-            if (file.isFile() && file.getName().endsWith(".csv")) {
-                csvFiles.add(file.getName());
+            if (file.isFile() && file.getName().endsWith(keyWord)) {
+                selectedFiles.add(file.getName());
             }
         }
 
-        if (csvFiles.isEmpty()) return null;
+        if (selectedFiles.isEmpty()) return null;
 
-        return csvFiles;
+        return selectedFiles;
     }
 
     public void deleteCSVFiles(String fileName) {
@@ -97,8 +93,7 @@ public class InstructionsSave {
         file.delete();
     }
 
-    /* Acceleration */
-
+    // Acceleration
     public boolean saveAcceleration(String name, BleTestActivity bleTest) {
         try {
             PrintWriter pw = initSaveProcess(name);
@@ -141,7 +136,7 @@ public class InstructionsSave {
                 float yData = Float.parseFloat(stringTokenizer.nextToken());
                 float zData = Float.parseFloat(stringTokenizer.nextToken());
 
-                controller.addDataAsync(xData,yData,zData);
+                controller.addAccelDataAsync(xData,yData,zData);
 
                 line = br.readLine();
             }
@@ -153,8 +148,7 @@ public class InstructionsSave {
         }
     }
 
-    /* Coordinate */
-
+    // Coordinate
     public void saveCoordinate(String fileName) {
         try {
             PrintWriter pw = initSaveProcess(fileName);
@@ -166,7 +160,7 @@ public class InstructionsSave {
             pw.print(",");
             // 全部で33個
             for (int j = 0; j < 33; j++) {
-                pw.print(CameraActivity.getLandmarks()[j]);
+                pw.print(CameraActivity.getLandmarks(context)[j]);
                 pw.print(",");
                 pw.print("");
                 pw.print(",");
@@ -212,7 +206,7 @@ public class InstructionsSave {
             pw.print(",");
             // 全部で12個
             for (int j = 0; j < 12; j++) {
-                pw.print(CameraActivity.getJointAngles()[j]);
+                pw.print(CameraActivity.getJointAngles(context)[j]);
                 pw.print(",");
             }
             pw.println();
@@ -227,11 +221,62 @@ public class InstructionsSave {
                 pw.print(",");
                 // 12(landmark数)
                 for (int l = 0; l < 11; l++) {
-                    pw.print(PoseDataProcess.jointAngles.poll());
+                    // データ分析用
+                    if (l==7 || l==8 || l==9 || l==10) {
+                        float data = PoseDataProcess.jointAngles.poll();
+                        forAnalysis.add(data);
+                        pw.print(data);
+                    } else {
+                        pw.print(PoseDataProcess.jointAngles.poll());
+                    }
                     pw.print(",");
                 }
                 // 12個めの","を入れないため
                 pw.print(PoseDataProcess.jointAngles.poll());
+                pw.println();
+            }
+
+            // 分析用が終わったら後処理をする
+
+            pw.close();
+            osw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveForAnalysis(String fileName) {
+        try {
+            PrintWriter pw = initSaveProcess(fileName);
+
+            // ヘッダー部分を書き込み
+            pw.print("時間");
+            pw.print(",");
+            pw.print("タイマー");
+            pw.print(",");
+            // 全部で4個
+            for (int j = 0; j < 4; j++) {
+                pw.print(GaitAnalysisActivity.getForAnalysis(context)[j]);
+                pw.print(",");
+            }
+            pw.println();
+
+            // 縦列のfor文
+            for (int k = 0; k < PoseDataProcess.keyCount; k++) {
+                // 横列のfor文
+                // 2(時間+タイマー)
+                pw.print(PoseDataProcess.timeData.get(k*2));
+                pw.print(",");
+                pw.print(PoseDataProcess.timeData.get(k*2+1));
+                pw.print(",");
+                // 4(landmark数)
+                for (int l = 0; l < 3; l++) {
+                    pw.print(forAnalysis.poll());
+                    pw.print(",");
+                }
+                // 12個めの","を入れないため
+                pw.print(forAnalysis.poll());
                 pw.println();
             }
 
@@ -260,7 +305,7 @@ public class InstructionsSave {
     public void moveFiles(String outFile) {
         boolean result = false;
 
-        File inputFile = new File("/storage/emulated/0/Android/data/com.example.esp32ble/result.mp4");
+        File inputFile = new File("/storage/emulated/0/Android/data/com.example.esp32ble/files/result.mp4");
         File outputFile = new File(outFile);
 
         FileInputStream inStream;
@@ -289,6 +334,68 @@ public class InstructionsSave {
 
         if (!result) {
             Toast.makeText(context, "保存できませんでした", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public ArrayList<Float> choseTimerData(String fileName) {
+        File file = new File(context.getExternalFilesDir(directoryType), fileName);
+        ArrayList<Float> timers = new ArrayList<>();
+
+        try(BufferedReader br = new BufferedReader(new FileReader(file))){
+            Log.d("Header", br.readLine());
+            String line = br.readLine();
+
+            while (line != null) {
+                // (date, timer, data, data, data, data) こんな形式で入っているから
+                StringTokenizer stringTokenizer = new StringTokenizer(line,",");
+
+                stringTokenizer.nextToken(); //時間をスキップ
+                timers.add(Float.parseFloat(stringTokenizer.nextToken()));
+
+                // dataをスキップ
+                for (int i=0; i<4; i++) stringTokenizer.nextToken();
+
+                line = br.readLine();
+            }
+
+            return timers;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ArrayList<Integer> choseForAnalysis(String fileName, int xPoint) {
+        File file = new File(context.getExternalFilesDir(directoryType), fileName);
+
+        ArrayList<Integer> data = new ArrayList<>();
+
+        try(BufferedReader br = new BufferedReader(new FileReader(file))){
+            Log.d("Header", br.readLine());
+            String line = br.readLine();
+
+            while (line != null) {
+                // (date, timer, data, data, data, data) こんな形式で入っているから
+                StringTokenizer stringTokenizer = new StringTokenizer(line,",");
+
+                stringTokenizer.nextToken(); // 時間をスキップ
+                stringTokenizer.nextToken(); // タイマーをスキップ
+
+                int tokenCount = stringTokenizer.countTokens();
+                for (int i=0; i<tokenCount; i++) {
+                    if(i == xPoint) data.add((int)Float.parseFloat(stringTokenizer.nextToken()));
+                    else stringTokenizer.nextToken();
+                }
+
+                line = br.readLine();
+            }
+
+            return data;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

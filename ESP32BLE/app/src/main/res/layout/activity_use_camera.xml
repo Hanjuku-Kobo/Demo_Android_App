@@ -13,7 +13,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pose_det_toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar6"
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
@@ -25,7 +25,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pose_det_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar6" />
 
     <VideoView
         android:id="@+id/videoView"
@@ -35,7 +35,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pose_det_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar6" />
 
     <com.example.esp32ble.ml.GraphicOverlay
         android:id="@+id/graphic_overlay"
@@ -44,7 +44,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pose_det_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar6" />
 
     <LinearLayout
         android:id="@+id/contain"
@@ -71,12 +71,15 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
         app:layout_constraintBottom_toBottomOf="@+id/cameraView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_baseline_settings_24" />
+        app:srcCompat="@drawable/ic_baseline_settings_24"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/pose_det_toolbar"
+        android:id="@+id/toolbar6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#CFCFCF"

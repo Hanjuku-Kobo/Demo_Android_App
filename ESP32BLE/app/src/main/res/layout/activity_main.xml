@@ -7,7 +7,7 @@
     tools:context=".activity.MainActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/ble_test_toolbar"
+        android:id="@+id/toolbar1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#CFCFCF"
@@ -18,8 +18,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="scene_menu"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:onClick="showPopup"
-            android:src="@drawable/ic_baseline_list_24" />
+            android:src="@drawable/ic_baseline_list_24"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="11dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -33,21 +37,19 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="40dp"
-        android:weightSum="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ble_test_toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar1">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:layout_weight="0.5">
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/button1"
@@ -70,10 +72,9 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_weight="0.5">
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/button3"
@@ -82,7 +83,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_weight="1"
                 android:text="ファイル"
-                android:textSize="24sp"/>
+                android:textSize="24sp" />
 
             <Button
                 android:id="@+id/button4"
@@ -92,6 +93,32 @@
                 android:layout_weight="1"
                 android:text="Bluetoothテスト"
                 android:textSize="24sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:text="歩行分析"
+                android:textSize="24sp" />
+
+            <Button
+                android:id="@+id/button6"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:text=""
+                android:textSize="24sp"
+                android:visibility="invisible" />
         </LinearLayout>
     </LinearLayout>
 

@@ -119,6 +119,14 @@
         <item>Right_ankle</item>
         <!-- 11 -->
     </string-array>
+
+    <string-array name="forAnalysis">
+        <!-- 4 items -->
+        <item>Left_knee</item>
+        <item>Right_knee</item>
+        <item>Left_ankle</item>
+        <item>Right_ankle</item>
+    </string-array>
     
     <string-array name="squeeze_object">
         <item>all</item>

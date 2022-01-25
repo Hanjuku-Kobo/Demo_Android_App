@@ -42,7 +42,6 @@ public class PoseGraphicBitmap {
     private final Paint whitePaint;
 
     private final PoseDataProcess dataProcess;
-    private final String[] landmarkList;
 
     public static boolean isViewUpperDegree = false;
     public static boolean isViewLowerDegree = false;
@@ -83,7 +82,6 @@ public class PoseGraphicBitmap {
         rightPaint.setColor(Color.YELLOW);
 
         dataProcess = new PoseDataProcess();
-        landmarkList = CameraActivity.getLandmarks();
 
         this.imageWidth = CameraActivity.videoViewWidget;
         this.imageHeight = CameraActivity.videoViewHeight;
@@ -243,46 +241,46 @@ public class PoseGraphicBitmap {
             drawAngleText(canvas, rightAnkle, angleOfRightAnkle);
         }
 
-        if (ShortcutButtonFragment.isStartedSave) {
-            // Save coordinates
-            dataProcess.addCoordinate(nose, null);
-            dataProcess.addCoordinate(leftEyeInner, null);
-            dataProcess.addCoordinate(leftEye, null);
-            dataProcess.addCoordinate(leftEyeOuter, null);
-            dataProcess.addCoordinate(rightEyeInner, null);
-            dataProcess.addCoordinate(rightEye, null);
-            dataProcess.addCoordinate(rightEyeOuter, null);
-            dataProcess.addCoordinate(leftEar, null);
-            dataProcess.addCoordinate(rightEar, null);
-            dataProcess.addCoordinate(leftMouth, null);
-            dataProcess.addCoordinate(rightMouth, null);
+        dataProcess.setTime();
 
-            dataProcess.addCoordinate(leftShoulder, angleOfLeftShoulder);
-            dataProcess.addCoordinate(rightShoulder, angleOfRightShoulder);
-            dataProcess.addCoordinate(leftElbow, angleOfLeftElbow);
-            dataProcess.addCoordinate(rightElbow, angleOfRightElbow);
-            dataProcess.addCoordinate(leftWrist, angleOfLeftWrist);
-            dataProcess.addCoordinate(rightWrist, angleOfRightWrist);
-            dataProcess.addCoordinate(leftPinky, null);
-            dataProcess.addCoordinate(rightPinky, null);
-            dataProcess.addCoordinate(leftIndex, null);
-            dataProcess.addCoordinate(rightIndex, null);
-            dataProcess.addCoordinate(leftThumb, null);
-            dataProcess.addCoordinate(rightThumb, null);
-            dataProcess.addCoordinate(leftHip, angleOfLeftHip);
-            dataProcess.addCoordinate(rightHip, angleOfRightHip);
+        // Save coordinates
+        dataProcess.addCoordinate(nose, null);
+        dataProcess.addCoordinate(leftEyeInner, null);
+        dataProcess.addCoordinate(leftEye, null);
+        dataProcess.addCoordinate(leftEyeOuter, null);
+        dataProcess.addCoordinate(rightEyeInner, null);
+        dataProcess.addCoordinate(rightEye, null);
+        dataProcess.addCoordinate(rightEyeOuter, null);
+        dataProcess.addCoordinate(leftEar, null);
+        dataProcess.addCoordinate(rightEar, null);
+        dataProcess.addCoordinate(leftMouth, null);
+        dataProcess.addCoordinate(rightMouth, null);
 
-            dataProcess.addCoordinate(leftKnee, angleOfLeftKnee);
-            dataProcess.addCoordinate(rightKnee, angleOfRightKnee);
-            dataProcess.addCoordinate(leftAnkle, angleOfLeftAnkle);
-            dataProcess.addCoordinate(rightAnkle, angleOfRightAnkle);
-            dataProcess.addCoordinate(leftHeel, null);
-            dataProcess.addCoordinate(rightHeel, null);
-            dataProcess.addCoordinate(leftFootIndex, null);
-            dataProcess.addCoordinate(rightFootIndex, null);
+        dataProcess.addCoordinate(leftShoulder, angleOfLeftShoulder);
+        dataProcess.addCoordinate(rightShoulder, angleOfRightShoulder);
+        dataProcess.addCoordinate(leftElbow, angleOfLeftElbow);
+        dataProcess.addCoordinate(rightElbow, angleOfRightElbow);
+        dataProcess.addCoordinate(leftWrist, angleOfLeftWrist);
+        dataProcess.addCoordinate(rightWrist, angleOfRightWrist);
+        dataProcess.addCoordinate(leftPinky, null);
+        dataProcess.addCoordinate(rightPinky, null);
+        dataProcess.addCoordinate(leftIndex, null);
+        dataProcess.addCoordinate(rightIndex, null);
+        dataProcess.addCoordinate(leftThumb, null);
+        dataProcess.addCoordinate(rightThumb, null);
+        dataProcess.addCoordinate(leftHip, angleOfLeftHip);
+        dataProcess.addCoordinate(rightHip, angleOfRightHip);
 
-            PoseDataProcess.keyCount++;
-        }
+        dataProcess.addCoordinate(leftKnee, angleOfLeftKnee);
+        dataProcess.addCoordinate(rightKnee, angleOfRightKnee);
+        dataProcess.addCoordinate(leftAnkle, angleOfLeftAnkle);
+        dataProcess.addCoordinate(rightAnkle, angleOfRightAnkle);
+        dataProcess.addCoordinate(leftHeel, null);
+        dataProcess.addCoordinate(rightHeel, null);
+        dataProcess.addCoordinate(leftFootIndex, null);
+        dataProcess.addCoordinate(rightFootIndex, null);
+
+        PoseDataProcess.keyCount++;
 
         return outBitmap;
     }

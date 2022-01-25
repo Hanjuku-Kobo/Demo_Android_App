@@ -36,6 +36,7 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 public class VideoProcessor {
@@ -54,8 +55,8 @@ public class VideoProcessor {
     private int aspectY;
 
     // 出力用のパスを指定
-    private final String outputPath = "/storage/emulated/0/Android/data/com.example.esp32ble/output";
-    private final String resultPath = "/storage/emulated/0/Android/data/com.example.esp32ble/result";
+    private final String outputPath = "/storage/emulated/0/Android/data/com.example.esp32ble/files/output";
+    private final String resultPath = "/storage/emulated/0/Android/data/com.example.esp32ble/files/result";
 
     private int usedFrames;
     private int frameCount;
@@ -103,17 +104,21 @@ public class VideoProcessor {
         try {
             es.execute(() -> {
                 // mp4からmjpegに変換
-                int ra = FFmpeg.execute("-y -i " + path + " -c:v mpeg4 " + outputPath + ".mjpeg");
+                // こっちだけ上書きじゃない場合の処理が必要っぽい
+                int ra = FFmpeg.execute("-y -i " + path + " -vcodec mpeg4 -b:v 10000k " + outputPath + ".mjpeg");
                 if (ra == RETURN_CODE_SUCCESS) {
                     Log.i("TEST", "Command execution completed successfully.");
                 } else {
-                    Log.i("TEST", String.format("FFmpeg command execution failed.", ra));
+                    int raa = FFmpeg.execute("-i " + path + " -vcodec mpeg4 -b:v 10000k " + outputPath + ".mjpeg");
+                    if (raa == RETURN_CODE_CANCEL) {
+                        Log.i("TEST", String.format("FFmpeg command execution failed.", ra));
+                    }
                 }
 
                 handler.post(setProgressBarVal(progressBar, 2));
 
                 // mjpegからmp4に変換
-                int rc = FFmpeg.execute("-y -i " + outputPath + ".mjpeg" + " -c:v mpeg4 " + outputPath + ".mp4");
+                int rc = FFmpeg.execute("-y -i " + outputPath + ".mjpeg" + " -vcodec mpeg4 -b:v 10000k  " + outputPath + ".mp4");
                 if (rc == RETURN_CODE_SUCCESS) {
                     Log.i("TEST", "Command execution completed successfully.");
                 } else {
@@ -161,8 +166,8 @@ public class VideoProcessor {
         Log.i("TEST", videoWidth + ":" + videoHeight);
 
         // アスペクト比を取得
-        RatioCalculation ratioCalculation = new RatioCalculation();
-        int[] resultAspects = ratioCalculation.getAspect(videoWidth, videoHeight);
+        Calculator calculator = new Calculator();
+        int[] resultAspects = calculator.getAspect(videoWidth, videoHeight);
         aspectX = resultAspects[0];
         aspectY = resultAspects[1];
 

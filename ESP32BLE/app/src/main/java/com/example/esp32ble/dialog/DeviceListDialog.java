@@ -13,7 +13,7 @@ import android.widget.ListView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.esp32ble.usecases.BLEProcessor;
+import com.example.esp32ble.usecases.BtProcessor;
 import com.example.esp32ble.usecases.CreateItemList;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class DeviceListDialog extends DialogFragment implements DialogInterface.
 
     private ListView listView;
 
-    private BLEProcessor bleProcessor;
+    private BtProcessor btProcessor;
 
     private final Context context;
     private ArrayList<BluetoothDevice> devices;
@@ -30,8 +30,8 @@ public class DeviceListDialog extends DialogFragment implements DialogInterface.
     private final String title;
 
     public DeviceListDialog (
-            BLEProcessor processor, Context context, ArrayList<BluetoothDevice> list, String title){
-        bleProcessor = processor;
+            BtProcessor processor, Context context, ArrayList<BluetoothDevice> list, String title){
+        btProcessor = processor;
         this.context = context;
         devices = list;
         this.title = title;
@@ -70,9 +70,9 @@ public class DeviceListDialog extends DialogFragment implements DialogInterface.
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                bleProcessor.connectDevice(devices.get(position));
-                devices.clear();
+                btProcessor.connectDevice(devices.get(position));
 
+                closeDialog();
                 dismiss();
             }
         });
@@ -81,8 +81,13 @@ public class DeviceListDialog extends DialogFragment implements DialogInterface.
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE){
-            devices.clear();
+            closeDialog();
             dismiss();
         }
+    }
+
+    private void closeDialog() {
+        btProcessor.stopDiscover();
+        devices.clear();
     }
 }

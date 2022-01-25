@@ -24,7 +24,7 @@ import com.example.esp32ble.R;
 import com.example.esp32ble.dialog.ReadFileDialog;
 import com.example.esp32ble.dialog.SaveFileDialog;
 import com.example.esp32ble.fragment.ShowPopupMenu;
-import com.example.esp32ble.usecases.BLEProcessor;
+import com.example.esp32ble.usecases.BtProcessor;
 import com.example.esp32ble.usecases.GetVoltageRegularly;
 import com.example.esp32ble.usecases.LineChartController;
 import com.github.mikephil.charting.charts.LineChart;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 public class BleTestActivity extends AppCompatActivity {
 
     private LineChartController chartController;
-    private BLEProcessor bleProcessor;
+    private BtProcessor btProcessor;
     private GetVoltageRegularly getRegularly;
 
     private LineChart chart;
@@ -63,7 +63,7 @@ public class BleTestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ble_test);
 
         // UI関連の初期化
-        Toolbar toolbar = findViewById(R.id.ble_test_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
 
         changeButton = findViewById(R.id.connect_button);
@@ -89,7 +89,7 @@ public class BleTestActivity extends AppCompatActivity {
         getLineChart();
 
         // Bluetoothを扱うクラスのインスタンスを生成
-        bleProcessor = new BLEProcessor(this, chartController);
+        btProcessor = new BtProcessor(this, chartController);
 
         //Bluetoothの設定
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -108,7 +108,7 @@ public class BleTestActivity extends AppCompatActivity {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // バッテリー電圧を定期的に取得するためのクラスのインスタンスを作成
-        getRegularly = new GetVoltageRegularly(bleProcessor);
+        getRegularly = new GetVoltageRegularly(btProcessor);
     }
 
     // onCreateの次に呼ばれる
@@ -135,7 +135,7 @@ public class BleTestActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        bleProcessor.clearBleGatt();
+        btProcessor.clearBleGatt();
     }
 
     // 画面サイズが変更されるとき
@@ -167,19 +167,19 @@ public class BleTestActivity extends AppCompatActivity {
             case R.id.readCSVButton:
                 chartReset();
                 if (!chart.isEnabled()) chart.clearValues();
-                ReadFileDialog dialogRead = new ReadFileDialog(this);
+                ReadFileDialog dialogRead = new ReadFileDialog(this, ".csv");
                 dialogRead.show(getSupportFragmentManager(), "read");
 
                 break;
 
             case R.id.write_a_button:
-                bleProcessor.onWrite("acceleration");
+                btProcessor.onWrite("acceleration");
                 useExtension = "acceleration";
 
                 break;
 
             case R.id.write_p_button:
-                bleProcessor.onWrite("pressure");
+                btProcessor.onWrite("pressure");
                 useExtension = "pressure";
 
                 break;
@@ -189,13 +189,13 @@ public class BleTestActivity extends AppCompatActivity {
     // ここからBluetoothの接続処理
     public void needsCallDialog() {
         if (!connectState) {
-            bleProcessor.discoverDevice(this, bluetoothAdapter);
+            btProcessor.discoverDevice(this, bluetoothAdapter);
         }
         else {
             String NOW_DISCONNECT = "接続を開始";
             connectState = false;
             getRegularly.onStop();
-            bleProcessor.clearBleGatt();
+            btProcessor.clearBleGatt();
 
             // 他クラスから呼ばれるときにこれが無いとviewに対する処理ができない
             new Handler(getMainLooper()).post(new Runnable() {

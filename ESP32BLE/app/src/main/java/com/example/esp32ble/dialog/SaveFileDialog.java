@@ -22,8 +22,6 @@ import com.example.esp32ble.R;
 
 import java.util.ArrayList;
 
-import static com.example.esp32ble.activity.CameraActivity.poseContext;
-
 public class SaveFileDialog extends DialogFragment implements DialogInterface.OnClickListener, View.OnClickListener, TextWatcher {
 
     private ArrayList<String> csvFiles = new ArrayList<>();
@@ -38,9 +36,9 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
     private Button submit;
     private View view;
 
-    public SaveFileDialog() {
-        context = poseContext;
-        is = new InstructionsSave();
+    public SaveFileDialog(Context context) {
+        this.context = context;
+        is = new InstructionsSave(context);
     }
 
     public SaveFileDialog(BleTestActivity bleTest) {
@@ -89,6 +87,7 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
         else {
             is.saveCoordinate(name + "_point.csv");
             is.saveJointAngles(name + "_angle.csv");
+            is.saveForAnalysis(name + "_analysis.csv");
         }
 
         dismiss();
@@ -104,7 +103,7 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
     public void afterTextChanged(Editable s) {
         String inputText = s.toString();
 
-        csvFiles = is.readCSVFiles();
+        csvFiles = is.readCSVFiles(".csv");
         int i = 0;
 
         if (csvFiles != null) {
