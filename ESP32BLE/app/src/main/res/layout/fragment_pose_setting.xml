@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_weight="1"
-                android:text="3D推定  ( Z軸追加 )"
+                android:text="3D ( リアルタイム検出限定 )"
                 android:textSize="20sp" />
 
             <Switch

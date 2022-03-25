@@ -8,7 +8,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.esp32ble.usecases.InstructionsSave;
+import com.example.esp32ble.usecases.FileOperation;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,13 +41,11 @@ public class VideoSaveDialog extends DialogFragment implements DialogInterface.O
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
             String fileName = sdf.format(nowDate);
 
-            InstructionsSave instructionsSave = new InstructionsSave(context);
-            instructionsSave.moveFiles(
+            FileOperation fileOperation = new FileOperation(context);
+            fileOperation.moveFiles(
                     "/storage/emulated/0/DCIM/Camera/" + fileName + ".mp4");
 
-            instructionsSave.saveCoordinate(fileName + "_point.csv");
-            instructionsSave.saveJointAngles(fileName + "_angle.csv");
-            instructionsSave.saveForAnalysis(fileName + "_analysis.csv");
+            fileOperation.saveForAnalysis(fileName + "_analysis.csv");
         }
     }
 }

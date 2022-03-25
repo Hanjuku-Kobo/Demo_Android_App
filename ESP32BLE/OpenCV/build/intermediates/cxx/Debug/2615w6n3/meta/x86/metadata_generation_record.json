@@ -1,0 +1,170 @@
+[
+  {
+    "level_": 0,
+    "message_": "Start JSON generation. Platform version: 21 min SDK version: x86",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -952774703
+  },
+  {
+    "level_": 0,
+    "message_": "rebuilding JSON E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\\android_gradle_build.json due to:",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1589715952
+  },
+  {
+    "level_": 0,
+    "message_": "- expected json E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\\android_gradle_build.json file is not present, will remove stale json folder",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1584817934
+  },
+  {
+    "level_": 0,
+    "message_": "- missing previous command file E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\\metadata_generation_command.txt, will remove stale json folder",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1586858000
+  },
+  {
+    "level_": 0,
+    "message_": "- command changed from previous, will remove stale json folder",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1508354925
+  },
+  {
+    "level_": 0,
+    "message_": "created folder \u0027E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\u0027",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1783098274
+  },
+  {
+    "level_": 0,
+    "message_": "executing cmake Executable : C:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\cmake\\3.18.1\\bin\\cmake.exe\narguments : \n-HE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_SYSTEM_VERSION\u003d21\n-DANDROID_PLATFORM\u003dandroid-21\n-DANDROID_ABI\u003dx86\n-DCMAKE_ANDROID_ARCH_ABI\u003dx86\n-DANDROID_NDK\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\n-DCMAKE_ANDROID_NDK\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\n-DCMAKE_TOOLCHAIN_FILE\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\\build\\cmake\\android.toolchain.cmake\n-DCMAKE_MAKE_PROGRAM\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\cmake\\3.18.1\\bin\\ninja.exe\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\build\\intermediates\\cxx\\Debug\\2615w6n3\\obj\\x86\n-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\build\\intermediates\\cxx\\Debug\\2615w6n3\\obj\\x86\n-DCMAKE_BUILD_TYPE\u003dDebug\n-BE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\n-GNinja\n-DANDROID_STL\u003dc++_shared\njvmArgs : \n\n",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -746490012
+  },
+  {
+    "level_": 0,
+    "message_": "Executable : C:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\cmake\\3.18.1\\bin\\cmake.exe\narguments : \n-HE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_SYSTEM_VERSION\u003d21\n-DANDROID_PLATFORM\u003dandroid-21\n-DANDROID_ABI\u003dx86\n-DCMAKE_ANDROID_ARCH_ABI\u003dx86\n-DANDROID_NDK\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\n-DCMAKE_ANDROID_NDK\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\n-DCMAKE_TOOLCHAIN_FILE\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\\build\\cmake\\android.toolchain.cmake\n-DCMAKE_MAKE_PROGRAM\u003dC:\\Users\\harum\\AppData\\Local\\Android\\Sdk\\cmake\\3.18.1\\bin\\ninja.exe\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\build\\intermediates\\cxx\\Debug\\2615w6n3\\obj\\x86\n-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\build\\intermediates\\cxx\\Debug\\2615w6n3\\obj\\x86\n-DCMAKE_BUILD_TYPE\u003dDebug\n-BE:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\n-GNinja\n-DANDROID_STL\u003dc++_shared\njvmArgs : \n\n",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1583043811
+  },
+  {
+    "level_": 0,
+    "message_": "Exiting generation of E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\\compile_commands.json.bin normally",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1855449640
+  },
+  {
+    "level_": 0,
+    "message_": "done executing cmake",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1196008674
+  },
+  {
+    "level_": 0,
+    "message_": "write command file E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\.cxx\\Debug\\2615w6n3\\x86\\metadata_generation_command.txt",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 560207770
+  },
+  {
+    "level_": 0,
+    "message_": "JSON generation completed without problems",
+    "file_": "E:\\AndroidStudioProjects\\ESP32BLE\\OpenCV\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "debug|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1160885538
+  }
+]

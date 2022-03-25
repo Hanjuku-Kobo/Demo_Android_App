@@ -1,0 +1,1 @@
+E:\AndroidStudioProjects\ESP32BLE\OpenCV\build\intermediates\cxx\Debug\2615w6n3\obj\x86

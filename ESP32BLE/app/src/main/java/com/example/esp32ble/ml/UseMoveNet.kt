@@ -58,10 +58,6 @@ class UseMoveNet(private var detector: PoseDetector) {
         val bottom: Int = top + screenHeight
 
         canvas.drawBitmap(
-            bitmap, Rect(0, 0, outputBitmap.width, outputBitmap.height),
-            Rect(left, top, right, bottom), null)
-
-        canvas.drawBitmap(
             outputBitmap, Rect(0, 0, outputBitmap.width, outputBitmap.height),
             Rect(left, top, right, bottom), null)
 

@@ -1,13 +1,10 @@
 package com.example.esp32ble.fragment;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -17,9 +14,8 @@ import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.dialog.GetPermissionDialog;
 import com.example.esp32ble.dialog.VideoSaveDialog;
 import com.example.esp32ble.ml.PoseDataProcess;
-import com.example.esp32ble.usecases.InstructionsSave;
 
-import static com.example.esp32ble.fragment.PoseSettingFragment.useVideo;
+import static com.example.esp32ble.fragment.CameraSettingFragment.useVideo;
 
 public class ShortcutButtonFragment extends Fragment implements View.OnClickListener {
 
@@ -80,7 +76,6 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
                 requestFrontCamera = !requestFrontCamera;
 
                 activity.startCamera();
-
                 break;
 
             case R.id.detection_button:
@@ -105,19 +100,17 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
                     }
                 }
 
-                if (PoseSettingFragment.useImage != null) {
+                if (CameraSettingFragment.useImage != null) {
                     activity.processImage();
                 }
-
                 break;
 
             case R.id.object_button:
                 isObjectClassify = !isObjectClassify;
 
-                if (PoseSettingFragment.useImage != null) {
+                if (CameraSettingFragment.useImage != null) {
                     activity.processImage();
                 }
-
                 break;
 
             case R.id.save_button:
@@ -145,7 +138,6 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
                     VideoSaveDialog videoSaveDialog = new VideoSaveDialog(getContext());
                     videoSaveDialog.show(getFragmentManager(), "save");
                 }
-
                 break;
 
             case R.id.detail_button:
@@ -157,14 +149,12 @@ public class ShortcutButtonFragment extends Fragment implements View.OnClickList
 
                 // 詳細設定のfragmentを表示
                 activity.addSettingFragment();
-
                 break;
 
             case R.id.close_fragment_button:
                 closeFragment();
 
                 activity.changeVisibleButton();
-
                 break;
         }
     }

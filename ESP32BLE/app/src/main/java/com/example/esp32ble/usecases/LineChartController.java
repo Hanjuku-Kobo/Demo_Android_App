@@ -16,7 +16,11 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import org.checkerframework.checker.units.qual.C;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class LineChartController {
 
@@ -175,27 +179,41 @@ public class LineChartController {
         });
     }
 
-    public void addChartForAnalysis(ArrayList<Float> timer, ArrayList<Integer> data) {
+    public void addChartForAnalysis(Map<Float, Integer> sampleData, Map<Float, Integer> data) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-                ArrayList<Entry> line = new ArrayList<>();
+                ArrayList<Entry> sampleLine = new ArrayList<>();
+                ArrayList<Entry> dataLine = new ArrayList<>();
 
-                for (int i=0; i<data.size(); i++) {
+                // ファイルごとに数が違うから分ける
+                for (Float key : sampleData.keySet()) {
                     //Entry型でListを作成し(x,y)=(i,data)で座標を格納
-                    line.add(new Entry(timer.get(i), data.get(i)));
+                    sampleLine.add(new Entry(key, sampleData.get(key)));
+                }
+                for (Float key : data.keySet()) {
+                    dataLine.add(new Entry(key, data.get(key)));
                 }
 
-                //LineDataSet
-                LineDataSet set = new LineDataSet(line, "data");
-                set.setColor(Color.RED);
-                set.setDrawCircles(false);
-                set.setLineWidth(1.5f);              //線の太さ
-                set.setMode(LineDataSet.Mode.CUBIC_BEZIER);// 折れ線グラフの表示方法
-                set.setDrawValues(false);            // 折れ線グラフの値を非表示
+                // LineDataSet
+                LineDataSet sampleSet = new LineDataSet(sampleLine, "sample");
+                sampleSet.setColor(Color.rgb(135, 206, 235));
+                sampleSet.setDrawCircles(false);
+                sampleSet.setLineWidth(1.5f);
+                sampleSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                sampleSet.setDrawValues(false);
 
-                dataSets.add(set);
+                dataSets.add(sampleSet);
+
+                LineDataSet dataSet = new LineDataSet(dataLine, "data");
+                dataSet.setColor(Color.RED);
+                dataSet.setDrawCircles(false);
+                dataSet.setLineWidth(1.5f);                     //線の太さ
+                dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER); // 折れ線グラフの表示方法
+                dataSet.setDrawValues(false);                   // 折れ線グラフの値を非表示
+
+                dataSets.add(dataSet);
 
                 LineData lineData = new LineData(dataSets);
 

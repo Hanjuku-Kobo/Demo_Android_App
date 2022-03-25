@@ -17,7 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.esp32ble.activity.BleTestActivity;
-import com.example.esp32ble.usecases.InstructionsSave;
+import com.example.esp32ble.usecases.FileOperation;
 import com.example.esp32ble.R;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
     private ArrayList<String> csvFiles = new ArrayList<>();
 
     private BleTestActivity bleTest;
-    private final InstructionsSave is;
+    private final FileOperation is;
 
     private Context context;
     private String name;
@@ -38,12 +38,12 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
 
     public SaveFileDialog(Context context) {
         this.context = context;
-        is = new InstructionsSave(context);
+        is = new FileOperation(context);
     }
 
     public SaveFileDialog(BleTestActivity bleTest) {
         this.bleTest = bleTest;
-        is = new InstructionsSave(bleTest);
+        is = new FileOperation(bleTest);
     }
 
     @Override
@@ -87,7 +87,6 @@ public class SaveFileDialog extends DialogFragment implements DialogInterface.On
         else {
             is.saveCoordinate(name + "_point.csv");
             is.saveJointAngles(name + "_angle.csv");
-            is.saveForAnalysis(name + "_analysis.csv");
         }
 
         dismiss();

@@ -11,9 +11,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 
 import com.example.esp32ble.activity.CameraActivity;
-import com.example.esp32ble.fragment.PoseSettingFragment;
+import com.example.esp32ble.fragment.CameraSettingFragment;
 
-import org.checkerframework.checker.units.qual.C;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.nnapi.NnApiDelegate;
 
@@ -29,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.esp32ble.fragment.PoseSettingFragment.useVideo;
+import static com.example.esp32ble.fragment.CameraSettingFragment.useVideo;
 
 public class ObjectClassifier {
 
@@ -193,7 +192,7 @@ public class ObjectClassifier {
         outPaint.setTextSize(12);
         outPaint.setAntiAlias(true);
 
-        if (PoseSettingFragment.targetTitle == null) {
+        if (CameraSettingFragment.targetTitle == null) {
             for (Recognition recognition :  recongnitions) {
                 if (recognition.confidence > 0.5f) {
                     drawBitmap(recognition);
@@ -202,7 +201,7 @@ public class ObjectClassifier {
         }
         else {
             for (Recognition recognition :  recongnitions) {
-                if (recognition.confidence > 0.5f && recognition.title.equals(PoseSettingFragment.targetTitle)) {
+                if (recognition.confidence > 0.5f && recognition.title.equals(CameraSettingFragment.targetTitle)) {
                     drawBitmap(recognition);
                 }
             }

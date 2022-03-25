@@ -30,7 +30,7 @@ import androidx.fragment.app.*;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.esp32ble.R;
-import com.example.esp32ble.fragment.PoseSettingFragment;
+import com.example.esp32ble.fragment.CameraSettingFragment;
 import com.example.esp32ble.fragment.ShortcutButtonFragment;
 import com.example.esp32ble.ml.*;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -87,7 +87,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_use_camera);
+        setContentView(R.layout.activity_camera);
 
         // UIの初期化
         Toolbar toolbar = findViewById(R.id.toolbar6);
@@ -133,12 +133,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         });
 
         initCamera();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
     }
 
     @Override
@@ -209,7 +203,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     // Fragment関連
     public void addSettingFragment() {
-        PoseSettingFragment settingFragment = new PoseSettingFragment(this);
+        CameraSettingFragment settingFragment = new CameraSettingFragment(this);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.contain_full, settingFragment);
         transaction.commit();
@@ -220,14 +214,16 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     // detect & camera
-    private void initPoseDetector(int MODE) {
-        PoseDetectorOptions options = new PoseDetectorOptions.Builder()
-                .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
-                .build();
+    private void initPoseDetector(int mode) {
+        PoseDetectorOptions options;
 
         if (imageView.getVisibility() == View.VISIBLE || videoView.getVisibility() == View.VISIBLE) {
             options = new PoseDetectorOptions.Builder()
-                    .setDetectorMode(MODE)
+                    .setDetectorMode(mode)
+                    .build();
+        } else {
+            options = new PoseDetectorOptions.Builder()
+                    .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
                     .build();
         }
 
@@ -235,8 +231,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 context,
                 options,
                 false,
-                PoseSettingFragment.isVisualizeZ,
-                PoseSettingFragment.isVisualizeZ); // 上に同じくZ軸関係なので同期させる
+                CameraSettingFragment.isVisualizeZ,
+                CameraSettingFragment.isVisualizeZ); // 上に同じくZ軸関係なので同期させる
     }
 
     public void startCamera() {
@@ -367,10 +363,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         if (path != null) {
             videoView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.INVISIBLE);
-            cameraView.setVisibility(View.INVISIBLE);
+            cameraView.setVisibility(View.GONE);
 
             graphicOverlay.clear();
-            stopCamera();
+
+            videoView.stopPlayback();
 
             videoView.setVideoPath(path);
 

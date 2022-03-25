@@ -24,7 +24,7 @@ import com.example.esp32ble.usecases.CreateItemList;
 import com.example.esp32ble.usecases.CreateItemList.Item;
 import com.example.esp32ble.usecases.CreateItemList.CustomAdapter;
 import com.example.esp32ble.usecases.CreateItemList.CustomAdapterCheckbox;
-import com.example.esp32ble.usecases.InstructionsSave;
+import com.example.esp32ble.usecases.FileOperation;
 
 import java.util.ArrayList;
 
@@ -38,7 +38,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
 
     private ArrayList<String> files;
 
-    private InstructionsSave is;
+    private FileOperation is;
 
     private ListView listView;
     private Button deleteButton;
@@ -51,7 +51,7 @@ public class FileServiceActivity extends AppCompatActivity implements View.OnCli
 
         context = this;
 
-        is = new InstructionsSave(context);
+        is = new FileOperation(context);
 
         // UI関連の初期化
         Toolbar toolbar = findViewById(R.id.toolbar4);

@@ -2,8 +2,14 @@ package com.example.esp32ble.usecases;
 
 import android.util.Log;
 
+import org.checkerframework.checker.units.qual.A;
+import org.opencv.core.Mat;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Calculator {
 
@@ -23,7 +29,7 @@ public class Calculator {
         return new int[]{xRatio, yRatio};
     }
 
-    private static int gcd(int xInput, int yInput) {
+    private int gcd(int xInput, int yInput) {
         int largeVal = Math.max(xInput, yInput);
         int smallVal = Math.min(xInput, yInput);
         int remVal;
@@ -38,7 +44,7 @@ public class Calculator {
     }
 
     /**
-     * 相関関数を計算する
+     * 相関係数を計算する
      * @param itemsXi 項目リスト(Xi)
      * @param itemsYi 項目リスト(Yi)
      * @return 結果
@@ -79,8 +85,6 @@ public class Calculator {
 
     /**
      * 平方和を計算する
-     * @param items
-     * @return
      */
     private Double sumOfSquares(final List<Double> items) {
         Double xbar = average(items);
@@ -95,8 +99,6 @@ public class Calculator {
 
     /**
      * 平均値を計算する
-     * @param items
-     * @return
      */
     private Double average(final List<Double> items) {
         return sum(items) / items.size();
@@ -104,8 +106,6 @@ public class Calculator {
 
     /**
      * 総和を計算する
-     * @param items
-     * @return
      */
     private Double sum(final List<Double> items) {
         Double result = 0.0;
@@ -114,5 +114,92 @@ public class Calculator {
             result += item;
         }
         return result;
+    }
+
+    /**
+     * ユークリッド距離を計算する
+     */
+    public Double euclideanDistance(final List<Double> itemsXi, final List<Double> itemsYi) {
+        double sum = 0.0d;
+
+        for (int i=0; i<itemsXi.size(); i++) {
+            sum += Math.pow(itemsXi.get(i) - itemsYi.get(i), 2);
+        }
+
+        double sumOfSqrt = Math.sqrt(sum);
+
+        return 1 / (1 + sumOfSqrt);
+    }
+
+    /**
+     * グラフの正規化（Min-Max法）
+     */
+    public Float normalization(float position, float dataSize) {
+       return position / dataSize * 100;
+    }
+
+    /**
+     * データ量を統一する
+     */
+    public ArrayList<Integer> unification(final Map<Float, Integer> changedMap, final Map<Float, Integer> constData) {
+        ArrayList<Integer> result = new ArrayList<>();
+
+        // データ量の多いほうの正規化したx軸を取得
+        for (Float constKey : constData.keySet()) {
+
+            Float veryNearDif = null;
+            Float oldChangedKey = null;
+            // 少ないほう
+            for (Float changedKey : changedMap.keySet()) {
+
+                // 差を絶対値で取得
+                float dif = Math.abs(changedKey - constKey);
+
+                // 一回目か差が縮まった時
+                if (veryNearDif == null || dif - veryNearDif < 0 ) {
+                    veryNearDif = dif;
+                    oldChangedKey = changedKey;
+                } else {
+                    // 差が広がった = 一番近いx軸が確定した
+                    result.add(changedMap.get(oldChangedKey));
+                    oldChangedKey = null;
+                    break;
+                }
+            }
+
+            // 一番最後を追加するため
+            if (oldChangedKey != null) {
+                result.add(changedMap.get(oldChangedKey));
+            }
+        }
+
+        return  result;
+    }
+
+    /**
+     * ArrayList<Integer> から List<Double> へ型変換
+     */
+    public List<Double> convertIntToDouble(List<Integer> inList) {
+        List<Double> outList = new ArrayList<>();
+        for (int i=0; i<inList.size(); i++) {
+            outList.add(Double.valueOf(inList.get(i)));
+        }
+
+        return outList;
+    }
+
+    /**
+     * List<Integer> から Map型に変換 + データの正規化
+     */
+    public Map<Float, Integer> convertListToMap(List<Integer> inList) {
+        int listSize = inList.size();
+        // TreeMap : データを自動的にソートしてくれる
+        Map<Float, Integer> outMap = new TreeMap<>();
+        for (int j=0; j<listSize; j++) {
+            // データ列の正規化
+            outMap.put(normalization(j, listSize), inList.get(j));
+        }
+
+        return outMap;
     }
 }

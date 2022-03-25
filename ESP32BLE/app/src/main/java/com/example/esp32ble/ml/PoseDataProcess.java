@@ -1,6 +1,7 @@
 package com.example.esp32ble.ml;
 
 import android.annotation.SuppressLint;
+import android.graphics.PointF;
 
 import com.google.mlkit.vision.pose.PoseLandmark;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.lang.Math.atan2;
 
@@ -16,6 +18,7 @@ public class PoseDataProcess {
 
     public static Queue<Float> coordinates = new ConcurrentLinkedDeque<>();
     public static Queue<Float> jointAngles = new ConcurrentLinkedDeque<>();
+    public static Queue<Float> forAnalysis = new ConcurrentLinkedQueue<>();
     public static ArrayList<String> timeData = new ArrayList<>();
 
     public static int keyCount = 0;
@@ -23,13 +26,13 @@ public class PoseDataProcess {
     public static long startTime = 0;
 
     // SAMPLE (firstPoint = rightHip, midPoint = rightKnee, lastPoint = rightAnkle)
-    public long getAngle(PoseLandmark firstPoint, PoseLandmark midPoint, PoseLandmark lastPoint){
+    public long getAngle(PointF firstPointF, PointF midPointF, PointF lastPointF){
         double result =
                 Math.toDegrees(
-                        atan2(lastPoint.getPosition().y - midPoint.getPosition().y,
-                                lastPoint.getPosition().x - midPoint.getPosition().x)
-                                - atan2(firstPoint.getPosition().y - midPoint.getPosition().y,
-                                firstPoint.getPosition().x - midPoint.getPosition().x));
+                        atan2(lastPointF.y - midPointF.y,
+                                lastPointF.x - midPointF.x)
+                                - atan2(firstPointF.y - midPointF.y,
+                                firstPointF.x - midPointF.x));
 
         // Angle should never be negative
         result = Math.abs(result);
@@ -65,6 +68,11 @@ public class PoseDataProcess {
 
         coordinates.add(valX);
         coordinates.add(valY);
+    }
+
+    public void addForAnalysis(Long angle) {
+        forAnalysis.add(Float.valueOf(angle));
+        setTime();
     }
 
     public void setStartTime() {

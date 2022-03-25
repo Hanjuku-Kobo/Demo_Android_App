@@ -78,32 +78,16 @@ public class PoseDetectorProcessor
     @Override
     protected void onSuccess(
             @NonNull PoseWithClassification poseWithClassification,
-            @NonNull GraphicOverlay graphicOverlay,
-            VisionProcessorBase processorBase) {
+            @NonNull GraphicOverlay graphicOverlay) {
 
             graphicOverlay.add(new PoseGraphic(
                     graphicOverlay,
-                    processorBase,
                     poseWithClassification.pose,
                     showInFrameLikelihood,
                     visualizeZ,
                     rescaleZForVisualization,
                     poseWithClassification.classificationResult)
             );
-    }
-
-    @Override
-    protected Bitmap onSuccessBitmap(
-            @NonNull PoseWithClassification poseWithClassification) {
-
-            PoseGraphicBitmap poseGraphicBitmap = new PoseGraphicBitmap(
-                    poseWithClassification.pose,
-                    showInFrameLikelihood,
-                    visualizeZ,
-                    rescaleZForVisualization,
-                    poseWithClassification.classificationResult);
-
-            return poseGraphicBitmap.onDraw();
     }
 
     @Override

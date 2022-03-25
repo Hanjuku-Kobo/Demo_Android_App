@@ -14,7 +14,8 @@ import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 
 import com.example.esp32ble.activity.CameraActivity;
-import com.example.esp32ble.fragment.PoseSettingFragment;
+import com.example.esp32ble.data.Device;
+import com.example.esp32ble.fragment.CameraSettingFragment;
 import com.example.esp32ble.fragment.ShortcutButtonFragment;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
@@ -22,7 +23,7 @@ import com.google.mlkit.vision.common.InputImage;
 
 import java.util.Timer;
 
-import static com.example.esp32ble.fragment.PoseSettingFragment.useVideo;
+import static com.example.esp32ble.fragment.CameraSettingFragment.useVideo;
 
 public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
@@ -39,7 +40,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
     // 画像や動画で検出を行うときに必要
     private Bitmap staticImageBitmap;
-    private Bitmap poseBitmap;
 
     protected VisionProcessorBase(Context context) {
         this.context = context;
@@ -83,16 +83,17 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         Canvas outCanvas = new Canvas(result);
 
         Bitmap objectResult = null;
+        Bitmap poseResult = null;
 
         if (objectClassifier == null) {
             // Object classification
             objectClassifier = new ObjectClassifier(context);
         }
 
-        if (ShortcutButtonFragment.requestDetect){
-            poseBitmap = requestDetectInImage(
-                    InputImage.fromBitmap(bitmap, 0),
-                    CameraActivity.graphicOverlay);
+        if (ShortcutButtonFragment.requestDetect) {
+            poseResult = new UseMoveNet(
+                    MoveNet.Companion.create(context, Device.NNAPI, ModelType.Thunder)
+            ).processImage(bitmap);
         }
 
         if(ShortcutButtonFragment.isObjectClassify) {
@@ -100,10 +101,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         }
 
         outCanvas.drawBitmap(bitmap, 0, 0, null);
-        if (poseBitmap != null) {
-            outCanvas.drawBitmap(poseBitmap, 0, 0, null);
-            poseBitmap = null;
-        }
+        if (poseResult != null) outCanvas.drawBitmap(poseResult, 0, 0, null);
         if (objectResult != null) outCanvas.drawBitmap(objectResult, 0, 0, null);
 
         return result;
@@ -174,12 +172,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                 detectInImage(image), graphicOverlay, originalCameraImage);
     }
 
-    private Bitmap requestDetectInImage(
-            final InputImage image,
-            final GraphicOverlay graphicOverlay) {
-        return setUpListener(detectInImage(image), graphicOverlay);
-    }
-
     private Task<T> setUpListener(
             Task<T> task,
             final GraphicOverlay graphicOverlay,
@@ -193,7 +185,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                         graphicOverlay.add(new CameraImageGraphic(graphicOverlay, originalCameraImage));
                     }
 
-                    VisionProcessorBase.this.onSuccess(results, graphicOverlay, this);
+                    VisionProcessorBase.this.onSuccess(results, graphicOverlay);
                     if (useVideo != null) return;
 
                     if (ShortcutButtonFragment.isObjectClassify) {
@@ -230,42 +222,6 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                         });
     }
 
-    private Bitmap setUpListener(Task<T> task, final GraphicOverlay graphicOverlay) {
-        task.addOnSuccessListener(
-                executor,
-                results -> {
-                    setPoseBitmap(this.onSuccessBitmap(results));
-                })
-                .addOnFailureListener(
-                        executor,
-                        e -> {
-                            String error = "Failed to process. Error: " + e.getLocalizedMessage();
-                            Toast.makeText(
-                                    graphicOverlay.getContext(),
-                                    error + "\nCause: " + e.getCause(),
-                                    Toast.LENGTH_SHORT)
-                                    .show();
-                            Log.d(TAG, error);
-                            e.printStackTrace();
-                            VisionProcessorBase.this.onFailure(e);
-                        });
-
-        Bitmap result;
-        do {
-            result = getPoseBitmap();
-        } while (result == null);
-
-        return result;
-    }
-
-    private Bitmap getPoseBitmap() {
-        return poseBitmap;
-    }
-
-    public void setPoseBitmap(Bitmap bitmap) {
-        poseBitmap = bitmap;
-    }
-
     @Override
     public void stop() {
         executor.shutdown();
@@ -275,17 +231,15 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
         ShortcutButtonFragment.requestFrontCamera = false;
         ShortcutButtonFragment.isObjectClassify = false;
         ShortcutButtonFragment.isStartedSave = false;
-        PoseSettingFragment.isVisualizeZ = false;
-        PoseSettingFragment.targetTitle = null;
-        PoseSettingFragment.useImage = null;
+        CameraSettingFragment.isVisualizeZ = false;
+        CameraSettingFragment.targetTitle = null;
+        CameraSettingFragment.useImage = null;
         useVideo = null;
     }
 
     protected abstract Task<T> detectInImage(InputImage image);
 
-    protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay, VisionProcessorBase processorBase);
-
-    protected abstract Bitmap onSuccessBitmap(@NonNull T results);
+    protected abstract void onSuccess(@NonNull T results, @NonNull GraphicOverlay graphicOverlay);
 
     protected abstract void onFailure(@NonNull Exception e);
 }

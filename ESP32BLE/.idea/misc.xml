@@ -8,15 +8,18 @@
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/abs_list_checkbox.xml" value="0.46359223300970875" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/activity_ble_game.xml" value="0.41504854368932037" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/activity_ble_test.xml" value="0.4350117096018735" />
+        <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/activity_camera.xml" value="0.5012135922330098" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/activity_file_ser.xml" value="0.41504854368932037" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/activity_gait_analysis.xml" value="0.4350117096018735" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/activity_main.xml" value="0.32645631067961167" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/activity_use_camera.xml" value="0.41504854368932037" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/collection_gat_analysis.xml" value="0.41504854368932037" />
+        <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/dialog_progress_bar.xml" value="0.5012135922330098" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/fragment_collection_object.xml" value="0.41504854368932037" />
+        <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/fragment_pose_setting.xml" value="0.5" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/fragment_tab.xml" value="0.39866504854368934" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/fragment_tab1.xml" value="0.4350117096018735" />
-        <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/fragment_tab2.xml" value="0.39866504854368934" />
+        <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/layout/fragment_tab2.xml" value="0.4171875" />
         <entry key="..\:/AndroidStudioProjects/ESP32BLE/app/src/main/res/menu/menuresorcefile.xml" value="0.58046875" />
       </map>
     </option>

@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Camera;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
@@ -16,15 +15,15 @@ import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.UiThread;
-import androidx.annotation.WorkerThread;
 import androidx.core.os.HandlerCompat;
 
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.example.esp32ble.R;
 import com.example.esp32ble.activity.CameraActivity;
-import com.example.esp32ble.dialog.ProgressDialog;
-import com.example.esp32ble.fragment.PoseSettingFragment;
+import com.example.esp32ble.data.Device;
+import com.example.esp32ble.ml.ModelType;
+import com.example.esp32ble.ml.MoveNet;
+import com.example.esp32ble.ml.UseMoveNet;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -32,7 +31,6 @@ import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
 import java.io.File;
-import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,6 +40,7 @@ import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 public class VideoProcessor {
 
     private final CameraActivity activity;
+    private BitmapToVideoEncoder bitmapToVideoEncoder;
 
     private final Context context;
 
@@ -53,6 +52,8 @@ public class VideoProcessor {
 
     private int aspectX;
     private int aspectY;
+
+    public boolean abort = false;
 
     // 出力用のパスを指定
     private final String outputPath = "/storage/emulated/0/Android/data/com.example.esp32ble/files/output";
@@ -68,20 +69,13 @@ public class VideoProcessor {
         System.loadLibrary("opencv_java4");     // 追加
     }
 
-    public VideoProcessor(
-            CameraActivity activity,
-            Context context,
-            Uri uri,
-            AlertDialog dialog) {
-
+    public VideoProcessor(CameraActivity activity, Context context) {
         this.activity = activity;
         this.context = context;
-
-        getDivideFrames(context, uri, dialog);
     }
 
     // opencvを使う用
-    public void getDivideFrames(Context context, Uri uri, AlertDialog dialog) {
+    public void preparing(Uri uri, AlertDialog dialog) {
         ProgressBar progressBar = dialog.findViewById(R.id.ProgressBarHorizontal);
 
         handler.post(setProgressBarMax(progressBar, 3));
@@ -100,6 +94,9 @@ public class VideoProcessor {
 
         handler.post(setProgressBarVal(progressBar, 1));
 
+        // 中止
+        if (abort) return;
+
         // 処理中は画面が固まるため別スレッドで実行する
         try {
             es.execute(() -> {
@@ -117,6 +114,8 @@ public class VideoProcessor {
 
                 handler.post(setProgressBarVal(progressBar, 2));
 
+                if (abort) return;
+
                 // mjpegからmp4に変換
                 int rc = FFmpeg.execute("-y -i " + outputPath + ".mjpeg" + " -vcodec mpeg4 -b:v 10000k  " + outputPath + ".mp4");
                 if (rc == RETURN_CODE_SUCCESS) {
@@ -129,9 +128,11 @@ public class VideoProcessor {
 
                 handler.post(setProgressBarVal(progressBar, 3));
 
+                if (abort) return;
+
                 if (videoCapture.isOpened()) {
                     Log.i("TEST", "true");
-                    getVideoFrames(videoCapture, dialog);
+                    processFrame(videoCapture, dialog);
                 } else {
                     Log.i("TEST", "false");
                     dialog.dismiss();
@@ -142,7 +143,7 @@ public class VideoProcessor {
         }
     }
 
-    public void getVideoFrames(VideoCapture videoCapture, AlertDialog dialog) {
+    public void processFrame(VideoCapture videoCapture, AlertDialog dialog) {
         ProgressBar progressBar = dialog.findViewById(R.id.ProgressBarHorizontal);
 
         MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
@@ -171,7 +172,7 @@ public class VideoProcessor {
         aspectX = resultAspects[0];
         aspectY = resultAspects[1];
 
-        BitmapToVideoEncoder bitmapToVideoEncoder = new BitmapToVideoEncoder(new BitmapToVideoEncoder.IBitmapToVideoEncoderCallback() {
+        bitmapToVideoEncoder = new BitmapToVideoEncoder(new BitmapToVideoEncoder.IBitmapToVideoEncoderCallback() {
             @Override
             public void onEncodingComplete(File outputFile) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -196,7 +197,7 @@ public class VideoProcessor {
         handler.post(setProgressBarMax(progressBar, frameCount));
 
         try {
-            es.execute(() -> detectFrameTask(handler, videoCapture, src, bitmapToVideoEncoder, progressBar));
+            es.execute(() -> detectFrameTask(handler, videoCapture, src, progressBar));
         } finally {
             es.shutdown();
         }
@@ -206,7 +207,6 @@ public class VideoProcessor {
             Handler handler,
             VideoCapture videoCapture,
             Mat src,
-            BitmapToVideoEncoder bitmapToVideoEncoder,
             ProgressBar progressBar) {
 
         // viewのサイズを動画のアスペクト比に変更する
@@ -224,6 +224,11 @@ public class VideoProcessor {
         }
 
         while (videoCapture.grab()) {
+            if (abort) {
+                bitmapToVideoEncoder.abortEncoding();
+                src.release();
+                return;
+            }
             // フレーム読み込み
             videoCapture.retrieve(src);
 

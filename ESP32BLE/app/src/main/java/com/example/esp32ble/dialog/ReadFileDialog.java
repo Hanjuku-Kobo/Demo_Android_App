@@ -16,7 +16,7 @@ import com.example.esp32ble.tab.TabFragment1;
 import com.example.esp32ble.usecases.CreateItemList;
 import com.example.esp32ble.usecases.CreateItemList.Item;
 import com.example.esp32ble.usecases.CreateItemList.CustomAdapter;
-import com.example.esp32ble.usecases.InstructionsSave;
+import com.example.esp32ble.usecases.FileOperation;
 
 import java.util.ArrayList;
 
@@ -26,7 +26,7 @@ public class ReadFileDialog extends DialogFragment implements DialogInterface.On
     private Context context;
     private String keyWord;
 
-    private InstructionsSave is;
+    private FileOperation is;
     private BleTestActivity bleTest;
     private TabFragment1 fragment;
 
@@ -35,7 +35,7 @@ public class ReadFileDialog extends DialogFragment implements DialogInterface.On
         this.bleTest = bleTest;
         this.keyWord = keyWord;
 
-        is = new InstructionsSave(bleTest);
+        is = new FileOperation(bleTest);
     }
 
     public ReadFileDialog(TabFragment1 fragment, String keyWord) {
@@ -43,7 +43,7 @@ public class ReadFileDialog extends DialogFragment implements DialogInterface.On
         this.fragment = fragment;
         this.keyWord = keyWord;
 
-        is = new InstructionsSave(context);
+        is = new FileOperation(context);
     }
 
     @Override

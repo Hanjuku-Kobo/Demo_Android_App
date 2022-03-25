@@ -1,16 +1,12 @@
 package com.example.esp32ble.ml;
 
-import static com.example.esp32ble.fragment.PoseSettingFragment.useVideo;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 
-import com.example.esp32ble.activity.CameraActivity;
 import com.example.esp32ble.fragment.ShortcutButtonFragment;
 import com.google.common.primitives.Ints;
 import com.google.mlkit.vision.common.PointF3D;
@@ -46,19 +42,14 @@ public class PoseGraphic extends Graphic {
     public static boolean isViewUpperDegree = false;
     public static boolean isViewLowerDegree = false;
 
-    private final VisionProcessorBase processorBase;
-    private Bitmap outBitmap;
-
     PoseGraphic(
             GraphicOverlay overlay,
-            VisionProcessorBase processorBase,
             Pose pose,
             boolean showInFrameLikelihood,
             boolean visualizeZ,
             boolean rescaleZForVisualization,
             List<String> poseClassification) {
         super(overlay);
-        this.processorBase = processorBase;
         this.pose = pose;
         this.showInFrameLikelihood = showInFrameLikelihood;
         this.visualizeZ = visualizeZ;
@@ -86,12 +77,6 @@ public class PoseGraphic extends Graphic {
 
     @Override
     public void draw(Canvas canvas) {
-        if (useVideo != null) {
-            outBitmap = Bitmap.createBitmap(
-                    CameraActivity.videoViewWidget, CameraActivity.videoViewHeight, Bitmap.Config.ARGB_8888);
-            canvas = new Canvas(outBitmap);
-        }
-
         List<PoseLandmark> landmarks = pose.getAllPoseLandmarks();
         if (landmarks.isEmpty()) {
             return;
@@ -204,19 +189,19 @@ public class PoseGraphic extends Graphic {
         }
 
         // Angle calculation
-        long angleOfLeftShoulder = dataProcess.getAngle(leftElbow, leftShoulder, leftHip);
-        long angleOfRightShoulder = dataProcess.getAngle(rightElbow, rightShoulder, rightHip);
-        long angleOfLeftElbow = dataProcess.getAngle(leftWrist, leftElbow, leftShoulder);
-        long angleOfRightElbow = dataProcess.getAngle(rightWrist, rightElbow, rightShoulder);
-        long angleOfLeftWrist = dataProcess.getAngle(leftIndex, leftWrist, leftElbow);
-        long angleOfRightWrist = dataProcess.getAngle(rightIndex, rightWrist, rightElbow);
+        long angleOfLeftShoulder = dataProcess.getAngle(leftElbow.getPosition(), leftShoulder.getPosition(), leftHip.getPosition());
+        long angleOfRightShoulder = dataProcess.getAngle(rightElbow.getPosition(), rightShoulder.getPosition(), rightHip.getPosition());
+        long angleOfLeftElbow = dataProcess.getAngle(leftWrist.getPosition(), leftElbow.getPosition(), leftShoulder.getPosition());
+        long angleOfRightElbow = dataProcess.getAngle(rightWrist.getPosition(), rightElbow.getPosition(), rightShoulder.getPosition());
+        long angleOfLeftWrist = dataProcess.getAngle(leftIndex.getPosition(), leftWrist.getPosition(), leftElbow.getPosition());
+        long angleOfRightWrist = dataProcess.getAngle(rightIndex.getPosition(), rightWrist.getPosition(), rightElbow.getPosition());
 
-        long angleOfLeftHip = dataProcess.getAngle(leftShoulder, leftHip, leftKnee);
-        long angleOfRightHip = dataProcess.getAngle(rightShoulder, rightHip, rightKnee);
-        long angleOfLeftKnee = dataProcess.getAngle(leftHip, leftKnee, leftAnkle);
-        long angleOfRightKnee = dataProcess.getAngle(rightHip, rightKnee, rightAnkle);
-        long angleOfLeftAnkle = dataProcess.getAngle(leftKnee, leftAnkle, leftFootIndex);
-        long angleOfRightAnkle = dataProcess.getAngle(rightKnee, rightAnkle, rightFootIndex);
+        long angleOfLeftHip = dataProcess.getAngle(leftShoulder.getPosition(), leftHip.getPosition(), leftKnee.getPosition());
+        long angleOfRightHip = dataProcess.getAngle(rightShoulder.getPosition(), rightHip.getPosition(), rightKnee.getPosition());
+        long angleOfLeftKnee = dataProcess.getAngle(leftHip.getPosition(), leftKnee.getPosition(), leftAnkle.getPosition());
+        long angleOfRightKnee = dataProcess.getAngle(rightHip.getPosition(), rightKnee.getPosition(), rightAnkle.getPosition());
+        long angleOfLeftAnkle = dataProcess.getAngle(leftKnee.getPosition(), leftAnkle.getPosition(), leftFootIndex.getPosition());
+        long angleOfRightAnkle = dataProcess.getAngle(rightKnee.getPosition(), rightAnkle.getPosition(), rightFootIndex.getPosition());
 
         if (isViewUpperDegree) {
             // Draw upper degree text
@@ -279,11 +264,6 @@ public class PoseGraphic extends Graphic {
             dataProcess.addCoordinate(rightFootIndex, null);
 
             PoseDataProcess.keyCount++;
-        }
-
-        if (useVideo != null) {
-            Log.i("TEST", "PoseCall");
-            processorBase.setPoseBitmap(outBitmap);
         }
     }
 

@@ -5,15 +5,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.esp32ble.R;
 import com.example.esp32ble.activity.GaitAnalysisActivity;
 import com.example.esp32ble.dialog.ReadFileDialog;
-import com.example.esp32ble.usecases.InstructionsSave;
+import com.example.esp32ble.usecases.Calculator;
+import com.example.esp32ble.usecases.FileOperation;
 import com.example.esp32ble.usecases.LineChartController;
 import com.github.mikephil.charting.charts.LineChart;
+
+import java.util.List;
+import java.util.Map;
 
 public class TabFragment1 extends Fragment {
 
@@ -46,21 +51,28 @@ public class TabFragment1 extends Fragment {
     }
 
     public void drawLineChar(String fileName) {
-        // instructionSave class でdraw methodを作成
-        InstructionsSave is = new InstructionsSave(getContext());
-
+        // FileOperation class でdraw methodを作成
+        FileOperation fileOperation = new FileOperation(getContext());
+        Calculator calculator = new Calculator();
 
         String[] forAnalysis = GaitAnalysisActivity.getForAnalysis(getContext());
 
-        for (int number=0; number<4; number++) {
+        for (int number=0; number<2; number++) {
             LineChartController chartController = new LineChartController();
             if (number == 0) chartController.initChart(chart1, forAnalysis[number]);
-            else if (number == 1) chartController.initChart(chart2, forAnalysis[number]);
-            else if (number == 2) chartController.initChart(chart3, forAnalysis[number]);
-            else chartController.initChart(chart4, forAnalysis[number]);
+            else chartController.initChart(chart2, forAnalysis[number]);
 
-            chartController.addChartForAnalysis(
-                    is.choseTimerData(fileName), is.choseForAnalysis(fileName, number));
+            List<Integer> nSampleColumn = fileOperation.choseForAnalysis("sample_analysis.csv", number);
+            List<Integer> nTargetColumn = fileOperation.choseForAnalysis(fileName, number);
+
+            // Map型に変換 + データの正規化
+            Map<Float, Integer> mSampleColumn = calculator.convertListToMap(nSampleColumn);
+            Map<Float, Integer> mTargetColumn = calculator.convertListToMap(nTargetColumn);
+
+            chartController.addChartForAnalysis(mSampleColumn, mTargetColumn);
         }
+
+        Toast.makeText(getContext(), "グラフが表示されない場合はタップしてください", Toast.LENGTH_LONG).show();
+        TabFragment2.fileName = fileName;
     }
 }

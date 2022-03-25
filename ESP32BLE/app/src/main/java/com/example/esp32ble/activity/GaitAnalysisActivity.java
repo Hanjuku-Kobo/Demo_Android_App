@@ -81,7 +81,6 @@ public class GaitAnalysisActivity extends AppCompatActivity {
             }
 
             Bundle args = new Bundle();
-            Log.i("TEST", "Set args");
             args.putInt("ARGS", position + 1);
             fragment.setArguments(args);
             return fragment;
